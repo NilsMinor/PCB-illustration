@@ -1,0 +1,3 @@
+# ignore my own config file as it implements my blynk key
+
+pcbi_config.h
