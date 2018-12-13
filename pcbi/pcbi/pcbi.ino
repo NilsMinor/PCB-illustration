@@ -1,6 +1,20 @@
 
 #include "pcbi_config.h"
 
+/* 
+ * Blynk connections :
+ * 
+ *  Pin    description         value
+ *  V0     on-off switch       0 - 1
+ *  V1     brightness          0 - 100
+ *  V2     effect selection    0 - ?
+ *  V3     effect speed        0 - 9
+ *  V10    temeprature value   XX.X °C
+ *  V11    humidity value      XX.X %
+ *  
+ *  
+ */
+
 #define BLYNK_PRINT Serial    // Comment this out to disable prints and save space
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
@@ -14,7 +28,6 @@
 // DHT 22 setting
 #define DHTPIN 2                // what digital pin we're connected to
 #define DHTTYPE DHT22           // DHT 22  (AM2302), AM2321
-
 
 
 // LED strip related configs
@@ -67,7 +80,7 @@ BLYNK_WRITE(V0) {
   on_off = (float)param.asInt();
 }
 
-BLYNK_WRITE(V2) {
+BLYNK_WRITE(V1) {
   brightness = (float)param.asInt()/100;
 }
 
@@ -124,10 +137,10 @@ void sendTemperatureHumidity(void)
     Serial.println("Failed to read from DHT sensor!");
     return;
   }
-  // You can send any value at any time.
+
   // Please don't send more that 10 values per second.
-  Blynk.virtualWrite(V5, h);
-  Blynk.virtualWrite(V6, t);
+  Blynk.virtualWrite(V10, h);
+  Blynk.virtualWrite(V11, t);
 }
 
 
