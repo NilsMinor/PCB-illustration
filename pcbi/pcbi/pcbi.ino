@@ -12,7 +12,10 @@
  *  V10    temeprature value   XX.X °C
  *  V11    humidity value      XX.X %
  *  
- *  
+ *  based on https://community.blynk.cc/t/esp8266-ws2812b-cool-desk-lamp/5633
+ * 
+ *  use http://arduino.esp8266.com/stable/package_esp8266com_index.json for esp8266 support (V2.4.2)
+ *  using wemos d1 mini
  */
 
 #define BLYNK_PRINT Serial    // Comment this out to disable prints and save space
@@ -59,22 +62,22 @@ void connectWLANIndicator (void);
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  touch.init();
+  
   Blynk.begin(auth, wlan_name, wlan_pw);
 
   strip.begin();
   dht.begin();
+  touch.init();
 
   connectWLANIndicator ();
 
-  
   timer.setInterval(1000L, sendTemperatureHumidity); // Setup a function to be called every second
-
+  brightness = 0.5;
+  Blynk.virtualWrite(V1, 50);
   Blynk.syncAll();  
 }
 
 //----------------------------------------------------------------------------------------------------
-
 
 BLYNK_WRITE(V0) {
   on_off = (float)param.asInt();
@@ -93,7 +96,7 @@ void loop() {
   else 
     all_off ();
     
-    //handle_touch ();
+    handle_touch ();
 
     //delay(10);
     Blynk.run();
@@ -122,36 +125,57 @@ void connectWLANIndicator (void) {
   all_off ();
 }
 
-
 // handle touch events
 // needed to change variable types (eg u8 to uint8_t) for esp8266
 void handle_touch (void) {
     uint8_t value=0;
+    static bool pressed1 = false;
+    static bool pressed2 = false;
     
     touch.get_touch_button_value(&value);
-    if(value&0x01) {
-        Serial.println("button 1 is pressed");
 
+    // handle touch button by adding a pressed/released function
+    if(value&0x01 && pressed1 == false) {        // button is pressed
+        Serial.println("button 1 is pressed");
+        pressed1 = true;
         // toggle on of state
         if (on_off) on_off = false;
         else        on_off = true;
+
+        Blynk.virtualWrite (V0,on_off);
     }
-    if(value&0x2){
-        // use for event setting
-        Serial.println("button 1 is pressed");
+    else if(!(value&0x01) && pressed1 == true) { // button was released
+        Serial.println("button 1 is released");
+        pressed1 = false;
     }
 
+    // button 2
+    if(value&0x2 && pressed2 == false){           // button is pressed
+        // use for event setting
+        pressed2 = true;
+        Serial.println("button 1 is pressed");
+    }
+    else if(!(value&0x02) && pressed2 == true) {   // button was released
+        Serial.println("button 1 is released");
+        pressed2 = false;
+    }
+
+
+    // slider
     touch.get_touch_slider_value(&value);
-    brightness = (double) value / 100.0;      
-    Serial.print("slider value is");
-    Serial.println(value,HEX);
-    Serial.println(" ");
+      
+    if (value != 0) {  
+      brightness = 1 - ((double) value / 100.0);  
+      Blynk.virtualWrite (V1, (int)(brightness*100));
+      Serial.print("slider value is");
+      Serial.println(value);
+    }
 
     // notify blynk
 }
 void sendTemperatureHumidity(void) {
   
-  /*float h = dht.readHumidity();
+  float h = dht.readHumidity();
   float t = dht.readTemperature(); // or dht.readTemperature(true) for Fahrenheit
 
   if (isnan(h) || isnan(t)) {
@@ -159,13 +183,8 @@ void sendTemperatureHumidity(void) {
     return;
   }
   
-  Blynk.virtualWrite(V5, t);
-  Blynk.virtualWrite(V6, h);*/
-
-  Serial.println("Test DHT sensor!");
-
-  Blynk.virtualWrite(V5, 1.23);
-  Blynk.virtualWrite(V6, 45.67);
+  Blynk.virtualWrite(V10, t);
+  Blynk.virtualWrite(V11, h);
 }
 
 
