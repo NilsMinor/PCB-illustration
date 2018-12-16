@@ -7,8 +7,11 @@
  *  Pin    description         value
  *  V0     on-off switch       0 - 1
  *  V1     brightness          0 - 100
- *  V2     effect selection    0 - ?
- *  V3     effect speed        0 - 9
+ *  V2     mode selection      0 - ?
+ *  V3     mode menu           0 - ?
+ *  
+ *  V5     rgb channel         
+ *  
  *  V10    temeprature value   XX.X °C
  *  V11    humidity value      XX.X %
  *  
@@ -16,6 +19,15 @@
  * 
  *  use http://arduino.esp8266.com/stable/package_esp8266com_index.json for esp8266 support (V2.4.2)
  *  using wemos d1 mini
+ *  use blynk V0.5.4 (otherwise esp floating point is not working for virtual writes
+ *  
+ *  
+ *  Groove Touch Slider:
+ *  _________________________
+ * |         [0]  [100]      |
+ * |(ON/OFF) >>>>>>>>> (MODE)|
+ * |_________________________|          
+ *  
  */
 
 #define BLYNK_PRINT Serial    // Comment this out to disable prints and save space
@@ -32,10 +44,10 @@
 #define DHTPIN 13                // what digital pin we're connected to
 #define DHTTYPE DHT22           // DHT 22  (AM2302), AM2321
 
-
 // LED strip related configs
 #define PIXEL_PIN   12          // Wemos D6 
-#define PIXEL_COUNT 200         // Pixels Count
+#define PIXEL_COUNT 180         // Pixels Count
+#define MODE_MAX    10          
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRBW + NEO_KHZ800);
 
@@ -47,6 +59,8 @@ BlynkTimer timer;
 // global variables
 float brightness = 0.5;
 bool on_off = false;
+uint8_t selected_mode = 1;
+uint8_t red, green, blue;
 
 
 void all_on (void);
@@ -58,6 +72,7 @@ void all_leds (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
 void sendTemperatureHumidity(void);
 void handle_touch (void);
 void connectWLANIndicator (void);
+void nextMode (void);
 
 void setup() {
   // put your setup code here, to run once:
@@ -71,9 +86,12 @@ void setup() {
 
   connectWLANIndicator ();
 
+  red = green = blue = 0;
+
   timer.setInterval(1000L, sendTemperatureHumidity); // Setup a function to be called every second
   brightness = 0.5;
-  Blynk.virtualWrite(V1, 50);
+  Blynk.virtualWrite(V1, (int)(brightness * 100));   // set default brightness
+  Blynk.virtualWrite(V3, selected_mode);             // set default mode   
   Blynk.syncAll();  
 }
 
@@ -84,7 +102,17 @@ BLYNK_WRITE(V0) {
 }
 
 BLYNK_WRITE(V1) {
-  brightness = (float)param.asInt()/100;
+  brightness = (float) param.asInt()/100;
+}
+
+BLYNK_WRITE(V2) {
+  nextMode ();
+}
+
+BLYNK_WRITE(V5) {
+  red = param [0].asInt ();
+  green = param [1].asInt ();
+  blue = param [2].asInt ();    
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -92,7 +120,8 @@ BLYNK_WRITE(V1) {
 void loop() {
   
   if (on_off) 
-    all_leds (0,0,0,255);
+    //all_leds (0,0,0,255);
+    all_leds(red,green,blue,0);
   else 
     all_off ();
     
@@ -125,6 +154,16 @@ void connectWLANIndicator (void) {
   all_off ();
 }
 
+// handle next mode (step) event
+void nextMode (void) {
+  selected_mode = ( selected_mode + 1 ) % MODE_MAX;
+  
+  Serial.print("Mode : ");
+  Serial.println(selected_mode);
+  
+  Blynk.virtualWrite(V3, selected_mode); 
+}
+
 // handle touch events
 // needed to change variable types (eg u8 to uint8_t) for esp8266
 void handle_touch (void) {
@@ -142,7 +181,7 @@ void handle_touch (void) {
         if (on_off) on_off = false;
         else        on_off = true;
 
-        Blynk.virtualWrite (V0,on_off);
+        Blynk.virtualWrite (V0, on_off);
     }
     else if(!(value&0x01) && pressed1 == true) { // button was released
         Serial.println("button 1 is released");
@@ -154,6 +193,8 @@ void handle_touch (void) {
         // use for event setting
         pressed2 = true;
         Serial.println("button 1 is pressed");
+  
+        nextMode ( );
     }
     else if(!(value&0x02) && pressed2 == true) {   // button was released
         Serial.println("button 1 is released");
@@ -167,11 +208,9 @@ void handle_touch (void) {
     if (value != 0) {  
       brightness = 1 - ((double) value / 100.0);  
       Blynk.virtualWrite (V1, (int)(brightness*100));
-      Serial.print("slider value is");
+      Serial.print("slider value is ");
       Serial.println(value);
     }
-
-    // notify blynk
 }
 void sendTemperatureHumidity(void) {
   
