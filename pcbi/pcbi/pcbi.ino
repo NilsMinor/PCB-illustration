@@ -38,6 +38,8 @@
 
 #include "Seeed_CY8C401XX.h"    // Grove touch sensor
 #include "DHT.h"                // DHT22 temperature and humidity sensor
+#include "arduinoFFT.h"
+arduinoFFT FFT = arduinoFFT();
 
 // DHT 22 setting
 #define DHTPIN 13               // 
@@ -46,7 +48,8 @@
 // LED strip related configs
 #define PIXEL_PIN   12          // Wemos D6 
 #define PIXEL_COUNT 159         // Pixels Count
-#define MODE_MAX    5           // max modes          
+#define MODE_MAX    6           // max modes
+#define MIC_PIN     0          //           
 
 
 CY8C touch;
@@ -58,7 +61,7 @@ BlynkTimer ledTimer;
 // global variables
 float brightness = 0.5;
 bool on_off = false;
-uint8_t selected_mode = 4;
+uint8_t selected_mode = 1;
 uint8_t red, green, blue;
 
 
@@ -73,12 +76,13 @@ void handle_touch (void);
 void connectWLANIndicator (void);
 void nextMode (int v);
 void runLEDMode (void);
+void handleClap (void);
 
 void Fire(int Cooling, int Sparking, int SpeedDelay);
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(9600);
+  Serial.begin(115200);
   
   Blynk.begin(auth, wlan_name, wlan_pw);
 
@@ -86,12 +90,14 @@ void setup() {
   dht.begin();
   touch.init();
 
+  pinMode(MIC_PIN, INPUT);
+
   connectWLANIndicator ();
 
   red = green = blue = 0;
 
   timer.setInterval(1000L, sendTemperatureHumidity);  // Setup a function to be called every second
-  ledTimer.setInterval(100L, runLEDMode);             // timer for led modes/effects
+  ledTimer.setInterval(300L, runLEDMode);             // timer for led modes/effects
 
   brightness = 0.5;
   Blynk.virtualWrite(V1, (int)(brightness * 100));   // set default brightness
@@ -111,6 +117,10 @@ BLYNK_WRITE(V1) {
 
 BLYNK_WRITE(V2) {
   nextMode (param.asInt());
+}
+
+BLYNK_WRITE(V3) {
+  selected_mode = param.asInt();
 }
 
 BLYNK_WRITE(V5) {
@@ -143,11 +153,11 @@ void loop() {
         break;
   
       case 4: // RGB (rainbow)
-            runLEDMode ( );
+            runLEDMode ( );   // timer based effect
         break;
 
       case 5: // RGB (Feuer)
-            rainbowCycle (100);
+            runLEDMode ( );   // timer based effect
         break;
     }
   }
@@ -155,7 +165,9 @@ void loop() {
   else {
     all_off ();
   }
-    
+
+  
+  handleClap( );
   handle_touch ();
 
   Blynk.run();
@@ -197,6 +209,67 @@ void nextMode (int v) {
   
 }
 
+/*
+void calibADC (void) {
+  int adc_count = 500;
+  double adc = 0;
+  for (int i=0; i!= adc_count; i++) {
+    adc = analogRead(A0);
+  }
+  mid_adc = 
+}*/
+void handleClap (void) {
+
+  static int claps = 0;
+  static long detectionSpanInitial = 0;
+  static long detectionSpan = 0;
+  static double prev_adc_value = 0;
+  static double adc_value = 0;
+  
+  
+  adc_value = analogRead(A0) - 400;
+
+  if (adc_value < 0) 
+    adc_value = adc_value * (-1);
+
+ /* if (prev_adc_value > adc_value) 
+    adc_value = 400 + (prev_adc_value - adc_value); 
+
+  prev_adc_value = adc_value;
+  */
+  //Serial.println(adc_value);
+
+
+  int sensorState = digitalRead(MIC_PIN);
+ 
+  if ((adc_value > 200 && claps == 0) || adc_value > 100 && claps == 1)
+  {
+    if (claps == 0)
+    {
+      detectionSpanInitial = detectionSpan = millis();
+      Serial.println("Clap 1");
+      claps++;
+    }
+    else if (claps > 0 && millis()-detectionSpan >= 50)
+    {
+      detectionSpan = millis();
+      Serial.println("Clap 2");
+      claps++;
+    }
+  }
+ 
+  if (millis()-detectionSpanInitial >= 400)
+  {
+    if (claps == 2)
+    {   Serial.println("Toggle on off");
+        // toggle on/off state
+        if (on_off) on_off = false;
+        else        on_off = true;
+    }
+    claps = 0;
+  }
+}
+
 // handle touch events
 // needed to change variable types (eg u8 to uint8_t) for esp8266
 void handle_touch (void) {
@@ -210,7 +283,7 @@ void handle_touch (void) {
     if(value&0x01 && pressed1 == false) {        // button is pressed
         Serial.println("button 1 is pressed");
         pressed1 = true;
-        // toggle on of state
+        // toggle on/off state
         if (on_off) on_off = false;
         else        on_off = true;
 
@@ -266,17 +339,16 @@ void sendTemperatureHumidity(void) {
 void runLEDMode (void) {
   switch (selected_mode) {
  
-      case 4: // RGB (rainbow)
+      case MODE_RAINBOW:  // RGB (rainbow)
            rainbowCycle (100);
         break;
 
-      case 5: // RGB (Feuer)
+      case MODE_FIRE:     // RGB (fire)
             Fire(55,120,15);
         break;
     }
 }
 void all_off (void) {
-   Serial.println("All LEDs off");
    all_leds (0,0,0,0);
 }
 
@@ -309,14 +381,16 @@ uint32_t Wheel(byte WheelPos) {
   return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
 }
 
-// Slightly different, this makes the rainbow equally distributed throughout
+// rainbow mode 
 void rainbowCycle (uint8_t wait) {
   uint16_t i, j;
   Serial.println("Vor loop");
   for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
     for(i=0; i< strip.numPixels(); i++) {
       strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
-      //Serial.println(i);
+
+      if (selected_mode != MODE_RAINBOW) return;
+      Blynk.run();   
     }
     strip.show();
     //delay(wait);
@@ -324,8 +398,6 @@ void rainbowCycle (uint8_t wait) {
   }
   Serial.println("Nach loop");
 }
-
-
 
 void setPixelHeatColor (int Pixel, byte temperature) {
   // Scale 'heat' down from 0-255 to 0-191
