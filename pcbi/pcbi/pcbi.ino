@@ -15,6 +15,8 @@
  *  V10    temeprature value   XX.X °C
  *  V11    humidity value      XX.X %
  *  
+ *  V15    OTA button
+ *  
  *  based on https://community.blynk.cc/t/esp8266-ws2812b-cool-desk-lamp/5633
  * 
  *  use http://arduino.esp8266.com/stable/package_esp8266com_index.json for esp8266 support (V2.4.2)
@@ -35,6 +37,11 @@
 #include <BlynkSimpleEsp8266.h>
 #include <Adafruit_NeoPixel.h>
 
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
+const char* host = "PCBi panel";
+
 
 #include "Seeed_CY8C401XX.h"    // Grove touch sensor
 #include "DHT.h"                // DHT22 temperature and humidity sensor
@@ -49,7 +56,7 @@ arduinoFFT FFT = arduinoFFT();
 #define PIXEL_PIN   12          // Wemos D6 
 #define PIXEL_COUNT 159         // Pixels Count
 #define MODE_MAX    6           // max modes
-#define MIC_PIN     0          //           
+#define MIC_PIN     0           //           
 
 
 CY8C touch;
@@ -72,7 +79,7 @@ void all_wwhite (uint8_t w);
 void single_led (uint8_t pin, uint8_t r, uint8_t g, uint8_t b, uint8_t w);
 void all_leds (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
 void sendTemperatureHumidity(void);
-void handle_touch (void);
+void handleTouch (void);
 void connectWLANIndicator (void);
 void nextMode (int v);
 void runLEDMode (void);
@@ -83,26 +90,27 @@ void Fire(int Cooling, int Sparking, int SpeedDelay);
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
-  
   Blynk.begin(auth, wlan_name, wlan_pw);
 
+  // setup hardware
   strip.begin();
   dht.begin();
   touch.init();
-
   pinMode(MIC_PIN, INPUT);
 
   connectWLANIndicator ();
-
   red = green = blue = 0;
 
+  // setup blynk app
   timer.setInterval(1000L, sendTemperatureHumidity);  // Setup a function to be called every second
   ledTimer.setInterval(300L, runLEDMode);             // timer for led modes/effects
-
   brightness = 0.5;
   Blynk.virtualWrite(V1, (int)(brightness * 100));   // set default brightness
   Blynk.virtualWrite(V3, selected_mode);             // set default mode   
   Blynk.syncAll();  
+
+  ArduinoOTA.setHostname("PCBi panel");   
+  ArduinoOTA.begin();   
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -122,6 +130,7 @@ BLYNK_WRITE(V2) {
 BLYNK_WRITE(V3) {
   selected_mode = param.asInt();
 }
+
 
 BLYNK_WRITE(V5) {
   red = param [0].asInt ();
@@ -168,12 +177,12 @@ void loop() {
 
   
   handleClap( );
-  handle_touch ();
+  handleTouch ();
 
   Blynk.run();
   timer.run();
+  ArduinoOTA.handle();  // For OTA
 }
-
 
 
 // Connect to WLAN, wait while not conected
@@ -205,19 +214,9 @@ void nextMode (int v) {
   Serial.print("Mode : ");
   Serial.println(selected_mode);
   
-  Blynk.virtualWrite(V3, selected_mode); 
-  
+  Blynk.virtualWrite(V3, selected_mode);  
 }
 
-/*
-void calibADC (void) {
-  int adc_count = 500;
-  double adc = 0;
-  for (int i=0; i!= adc_count; i++) {
-    adc = analogRead(A0);
-  }
-  mid_adc = 
-}*/
 void handleClap (void) {
 
   static int claps = 0;
@@ -272,7 +271,7 @@ void handleClap (void) {
 
 // handle touch events
 // needed to change variable types (eg u8 to uint8_t) for esp8266
-void handle_touch (void) {
+void handleTouch (void) {
     uint8_t value=0;
     static bool pressed1 = false;
     static bool pressed2 = false;
