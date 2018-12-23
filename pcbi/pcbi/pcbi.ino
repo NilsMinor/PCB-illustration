@@ -15,13 +15,13 @@
  *  V10    temeprature value   XX.X °C
  *  V11    humidity value      XX.X %
  *  
- *  V15    OTA button
  *  
  *  based on https://community.blynk.cc/t/esp8266-ws2812b-cool-desk-lamp/5633
  * 
  *  use http://arduino.esp8266.com/stable/package_esp8266com_index.json for esp8266 support (V2.4.2)
  *  using wemos d1 mini
  *  use blynk V0.5.4 (otherwise esp floating point is not working for virtual writes
+ *  Adafruit Sesnor AM2302
  *  
  *  
  *  Groove Touch Slider:
@@ -37,16 +37,15 @@
 #include <BlynkSimpleEsp8266.h>
 #include <Adafruit_NeoPixel.h>
 
+
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 const char* host = "PCBi panel";
 
-
+#include "musicRGB.h"
 #include "Seeed_CY8C401XX.h"    // Grove touch sensor
 #include "DHT.h"                // DHT22 temperature and humidity sensor
-#include "arduinoFFT.h"
-arduinoFFT FFT = arduinoFFT();
 
 // DHT 22 setting
 #define DHTPIN 13               // 
@@ -85,6 +84,7 @@ void nextMode (int v);
 void runLEDMode (void);
 void handleClap (void);
 
+void musicMode (void);
 void Fire(int Cooling, int Sparking, int SpeedDelay);
 
 void setup() {
@@ -109,8 +109,21 @@ void setup() {
   Blynk.virtualWrite(V3, selected_mode);             // set default mode   
   Blynk.syncAll();  
 
-  ArduinoOTA.setHostname("PCBi panel");   
-  ArduinoOTA.begin();   
+  musiRGBInit ();
+
+  ArduinoOTA.setHostname("PCBi panel");  
+  ArduinoOTA.setPassword("1234"); 
+  ArduinoOTA.begin();  
+
+   ArduinoOTA.onStart([]() {
+    String type;
+
+    all_off ();
+
+    for (int i=0;i!=25;i++)
+      single_led (i,0,255,0,0);
+  });
+  
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -154,11 +167,13 @@ void loop() {
               all_leds(0, 0, 0, 255);
         break;
   
-      case 2: // Normal (Fading 2)
+      case 2: // RGB (free-wheel)
+              all_leds(red, green, blue,0);
         break;
         
-      case 3: // RGB (free-wheel)
-            all_leds(red, green, blue,0);
+      case 3: // music mode
+            musicMode ( );
+            //runLEDMode ();
         break;
   
       case 4: // RGB (rainbow)
@@ -176,8 +191,8 @@ void loop() {
   }
 
   
-  handleClap( );
-  handleTouch ();
+  //handleClap( );
+  //handleTouch ();
 
   Blynk.run();
   timer.run();
@@ -192,11 +207,9 @@ void connectWLANIndicator (void) {
 
   // wait for wlan connection
   Serial.print("Connecting");
-  single_led (8,0,0,55,0);
-  single_led (9,0,0,155,0);
-  single_led (10,0,0,255,0);
-  single_led (11,0,0,155,0);
-  single_led (12,0,0,55,0);
+  for (int i=0;i!=25;i++)
+    single_led (i,0,0,0,255);
+    
   while (Blynk.connect() == false) { 
     Serial.print(".");
     delay(100); 
@@ -345,6 +358,7 @@ void runLEDMode (void) {
       case MODE_FIRE:     // RGB (fire)
             Fire(55,120,15);
         break;
+      
     }
 }
 void all_off (void) {
@@ -364,21 +378,7 @@ void single_led (uint8_t pin, uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
   strip.show();
 }
 
-// Input a value 0 to 255 to get a color value.
-// The colours are a transition r - g - b - back to r.
-uint32_t Wheel(byte WheelPos) {
-  WheelPos = 255 - WheelPos;
-  if(WheelPos < 85) {
-    return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
-  }
-  if(WheelPos < 170) {
-    WheelPos -= 85;
-    return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
-  }
-  
-  WheelPos -= 170;
-  return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
-}
+
 
 // rainbow mode 
 void rainbowCycle (uint8_t wait) {
@@ -386,7 +386,7 @@ void rainbowCycle (uint8_t wait) {
   Serial.println("Vor loop");
   for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
     for(i=0; i< strip.numPixels(); i++) {
-      strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
+      strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255, &strip));
 
       if (selected_mode != MODE_RAINBOW) return;
       Blynk.run();   
@@ -414,6 +414,12 @@ void setPixelHeatColor (int Pixel, byte temperature) {
   } else {                               // coolest
     strip.setPixelColor(Pixel, heatramp, 0, 0);
   }
+}
+
+void musicMode (void) {
+  musicRGBFFT ( );
+  musicRGBcolor (&strip);
+  if (selected_mode != MODE_MUSIC) return;
 }
 
 void Fire(int Cooling, int Sparking, int SpeedDelay) {
