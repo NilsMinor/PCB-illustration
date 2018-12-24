@@ -29,11 +29,11 @@ To control the setup with my smartphone I use Blynk.
 
 Thinks I plan to implement: 
 
-- [ ] Timer based LED mode scheduler (effects) without delay
-- [ ] DHT22 temperature and humidity streaming
-- [ ] MOSFET based on of switch for LED strip
-- [ ] Double clap detection to control the panel :clap::clap:
-- [ ] Music controlled LED strip using fft :musical_note:
+- [ ] :alarm_clock: Timer based LED mode scheduler (effects) without delay
+- [ ] :bar_chart: DHT22 temperature and humidity streaming
+- [ ] :electric_plug: MOSFET based on of switch for LED strip to reduce power consumption
+- [ ] :clap::clap: Double clap detection to control the panel 
+- [ ] :musical_note: Music controlled LED strip using fft 
 
 
  
