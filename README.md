@@ -25,4 +25,15 @@ To use the esp8266 I needed to downgrade the esp library to version XXXX
 To control the setup with my smartphone I use Blynk. 
 
 
+## PCBi Functionality
+
+Thinks I plan to implement: 
+
+[ ] Timer based LED mode scheduler (effects) without delay
+[ ] DHT22 temperature and humidity streaming
+[ ] MOSFET based on of switch for LED strip
+[ ] Double clap detection to control the panel :clap::clap:
+[ ] Music controlled LED strip using fft :musical_note:
+
+
  
