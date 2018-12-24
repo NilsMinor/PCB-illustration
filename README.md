@@ -32,7 +32,7 @@ Thinks I plan to implement:
 - [ ] :alarm_clock: Timer based LED mode scheduler (effects) without delay
 - [ ] :bar_chart: DHT22 temperature and humidity streaming
 - [ ] :electric_plug: MOSFET based on of switch for LED strip to reduce power consumption
-- [ ] :clap::clap: Double clap detection to control the panel 
+- [ ] :clap: Double clap detection to control the panel 
 - [ ] :musical_note: Music controlled LED strip using fft 
 
 
