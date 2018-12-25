@@ -9,7 +9,7 @@
  *  V1     brightness          0 - 100
  *  V2     mode selection      0 - ?
  *  V3     mode menu           0 - ?
- *  
+ *  V4     effect speed        0 - 10
  *  V5     rgb channel         
  *  
  *  V10    temeprature value   XX.X °C
@@ -53,7 +53,11 @@ const char* host = "PCBi panel";
 
 // LED strip related configs
 #define PIXEL_PIN   12          // Wemos D6 
-#define PIXEL_COUNT 159         // Pixels Count
+
+#define PIXEL_COUNT_BACK        (5*26)      // Backlight 5 rows
+#define PIXEL_COUNT_FRONT       159         // Pixels Count
+#define PIXEL_COUNT             (PIXEL_COUNT_FRONT+PIXEL_COUNT_BACK)          
+
 #define MODE_MAX    6           // max modes
 #define MIC_PIN     0           //           
 
@@ -63,12 +67,15 @@ DHT dht(DHTPIN, DHTTYPE);
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRBW + NEO_KHZ800);
 BlynkTimer timer;
 BlynkTimer ledTimer;
+int ledTimerID;
 
 // global variables
 float brightness = 0.5;
 bool on_off = false;
 uint8_t selected_mode = 1;
+uint8_t effect_speed = 5;
 uint8_t red, green, blue;
+unsigned long previousTime = 0;
 
 
 void all_on (void);
@@ -77,6 +84,7 @@ void all_color (uint8_t r, uint8_t g, uint8_t b);
 void all_wwhite (uint8_t w);
 void single_led (uint8_t pin, uint8_t r, uint8_t g, uint8_t b, uint8_t w);
 void all_leds (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
+void bl_all_leds (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
 void sendTemperatureHumidity(void);
 void handleTouch (void);
 void connectWLANIndicator (void);
@@ -85,6 +93,7 @@ void runLEDMode (void);
 void handleClap (void);
 
 void musicMode (void);
+
 void Fire(int Cooling, int Sparking, int SpeedDelay);
 
 void setup() {
@@ -102,11 +111,12 @@ void setup() {
   red = green = blue = 0;
 
   // setup blynk app
-  timer.setInterval(1000L, sendTemperatureHumidity);  // Setup a function to be called every second
-  ledTimer.setInterval(300L, runLEDMode);             // timer for led modes/effects
+  //timer.setInterval(1000L, sendTemperatureHumidity);  // Setup a function to be called every second
+  ledTimerID = ledTimer.setInterval(effect_speed*100, runLEDMode);             // timer for led modes/effects
   brightness = 0.5;
   Blynk.virtualWrite(V1, (int)(brightness * 100));   // set default brightness
-  Blynk.virtualWrite(V3, selected_mode);             // set default mode   
+  Blynk.virtualWrite(V3, selected_mode);             // set default mode
+  Blynk.virtualWrite(V4, effect_speed);              // set effect speed 
   Blynk.syncAll();  
 
   musiRGBInit ();
@@ -114,12 +124,8 @@ void setup() {
   ArduinoOTA.setHostname("PCBi panel");  
   ArduinoOTA.setPassword("1234"); 
   ArduinoOTA.begin();  
-
-   ArduinoOTA.onStart([]() {
-    String type;
-
+  ArduinoOTA.onStart([]() {
     all_off ();
-
     for (int i=0;i!=25;i++)
       single_led (i,0,255,0,0);
   });
@@ -139,11 +145,15 @@ BLYNK_WRITE(V1) {
 BLYNK_WRITE(V2) {
   nextMode (param.asInt());
 }
-
 BLYNK_WRITE(V3) {
   selected_mode = param.asInt();
 }
-
+BLYNK_WRITE(V4) {
+  effect_speed = param.asInt();
+  ledTimer.deleteTimer(ledTimerID);
+  ledTimer.setInterval(effect_speed*100, runLEDMode);             // timer for led modes/effects
+  Serial.println(effect_speed);
+}
 
 BLYNK_WRITE(V5) {
   red = param [0].asInt ();
@@ -164,7 +174,7 @@ void loop() {
         break;
       
       case 1: // Normal (Fading 1)
-              all_leds(0, 0, 0, 255);
+              bl_all_leds(0, 0, 0, 255);
         break;
   
       case 2: // RGB (free-wheel)
@@ -192,7 +202,7 @@ void loop() {
 
   
   //handleClap( );
-  //handleTouch ();
+  handleTouch ();
 
   Blynk.run();
   timer.run();
@@ -208,7 +218,7 @@ void connectWLANIndicator (void) {
   // wait for wlan connection
   Serial.print("Connecting");
   for (int i=0;i!=25;i++)
-    single_led (i,0,0,0,255);
+    single_led (i,0,0,255,0);
     
   while (Blynk.connect() == false) { 
     Serial.print(".");
@@ -349,25 +359,39 @@ void sendTemperatureHumidity(void) {
 
 // ------------------------------------------------------------
 void runLEDMode (void) {
+
+   static unsigned long CurrentTime = 0;
+   CurrentTime = millis();
+   Serial.print ("Elapsed Time: ");
+   Serial.println(CurrentTime - previousTime);
+   previousTime = CurrentTime;
+   
   switch (selected_mode) {
  
       case MODE_RAINBOW:  // RGB (rainbow)
-           rainbowCycle (100);
+           rainbowCycle ( );
         break;
 
       case MODE_FIRE:     // RGB (fire)
             Fire(55,120,15);
         break;
-      
     }
 }
 void all_off (void) {
    all_leds (0,0,0,0);
+   bl_all_leds (0,0,0,0);
 }
 
 // set all leds with one command
 void all_leds (uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
-  for (int i=0;i!=PIXEL_COUNT;i++) {
+  for (int i=0;i!=PIXEL_COUNT_FRONT;i++) {
+      strip.setPixelColor(i, strip.Color(r*brightness, g*brightness, b*brightness,w*brightness));
+  }
+  strip.show();
+}
+
+void bl_all_leds (uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
+  for (int i=PIXEL_COUNT_FRONT;i!=PIXEL_COUNT;i++) {
       strip.setPixelColor(i, strip.Color(r*brightness, g*brightness, b*brightness,w*brightness));
   }
   strip.show();
@@ -379,23 +403,21 @@ void single_led (uint8_t pin, uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
 }
 
 
-
 // rainbow mode 
-void rainbowCycle (uint8_t wait) {
+void rainbowCycle (void) {
   uint16_t i, j;
-  Serial.println("Vor loop");
+   
   for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
-    for(i=0; i< strip.numPixels(); i++) {
+    for(i=0; i< PIXEL_COUNT_FRONT; i++) {
       strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255, &strip));
-
+      //handleTouch ();
       if (selected_mode != MODE_RAINBOW) return;
       Blynk.run();   
     }
     strip.show();
-    //delay(wait);
-    Blynk.run();   
+    Blynk.run(); 
   }
-  Serial.println("Nach loop");
+  
 }
 
 void setPixelHeatColor (int Pixel, byte temperature) {
@@ -427,7 +449,7 @@ void Fire(int Cooling, int Sparking, int SpeedDelay) {
   int cooldown;
   
   // Step 1.  Cool down every cell a little
-  for( int i = 0; i < PIXEL_COUNT; i++) {
+  for( int i = 0; i < PIXEL_COUNT_FRONT; i++) {
     cooldown = random(0, ((Cooling * 10) / PIXEL_COUNT) + 2);
     
     if(cooldown>heat[i]) {
@@ -438,7 +460,7 @@ void Fire(int Cooling, int Sparking, int SpeedDelay) {
   }
   
   // Step 2.  Heat from each cell drifts 'up' and diffuses a little
-  for( int k= PIXEL_COUNT - 1; k >= 2; k--) {
+  for( int k= PIXEL_COUNT_FRONT - 1; k >= 2; k--) {
     heat[k] = (heat[k - 1] + heat[k - 2] + heat[k - 2]) / 3;
   }
     
@@ -450,7 +472,7 @@ void Fire(int Cooling, int Sparking, int SpeedDelay) {
   }
 
   // Step 4.  Convert heat to LED colors
-  for( int j = 0; j < PIXEL_COUNT; j++) {
+  for( int j = 0; j < PIXEL_COUNT_FRONT; j++) {
     setPixelHeatColor(j, heat[j] );
   }
 
