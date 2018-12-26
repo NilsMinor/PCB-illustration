@@ -15,6 +15,8 @@ unsigned long newTime, oldTime;
 arduinoFFT FFT = arduinoFFT();
 
 void musiRGBInit (void) {
+  pinMode(MIC_PIN, INPUT);
+
   sampling_period_us = round(1000000 * (1.0 / SAMPLING_FREQUENCY));
 }
 
