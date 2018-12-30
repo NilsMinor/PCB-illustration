@@ -13,7 +13,6 @@ LightController::LightController ( ) {
   strip->begin();
 
   // musiRGBInit ();
-
 }
 
 float LightController::getBrightness (void) {

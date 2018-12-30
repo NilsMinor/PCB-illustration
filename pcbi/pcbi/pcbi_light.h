@@ -15,7 +15,7 @@
 #define PIXEL_COUNT             (PIXEL_COUNT_FRONT+PIXEL_COUNT_BACK)  // Total pixel count
 #define MAX_MODE                6                                     // max modes
 
-#define MODE_MUSIC        3
+#define MODE_MUSIC              3
 #define MODE_RAINBOW            4
 #define MODE_FIRE               5
 
@@ -47,12 +47,12 @@ class LightController{
 
   private:
     Adafruit_NeoPixel * strip;
-    float               brightness;
-    uint8_t             effect_speed;
-    uint8_t             selected_mode;
-    uint8_t             red;
-    uint8_t             green;
-    uint8_t             blue;
+    float   brightness;
+    uint8_t effect_speed;
+    uint8_t selected_mode;
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
 
     void    setPixelHeatColor (int Pixel, byte temperature);
   

@@ -34,9 +34,7 @@
  */
 
 #define BLYNK_PRINT Serial      // Comment this out to disable prints and save space
-#include <ESP8266WiFi.h>        //
-//#include <BlynkSimpleEsp8266.h> //
-
+#include <ESP8266WiFi.h>        // 
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
@@ -45,6 +43,7 @@ const char* host = "PCBi panel";
 #include "Seeed_CY8C401XX.h"    // Grove touch sensor
 #include "DHT.h"                // DHT22 temperature and humidity sensor
 #include "pcbi_light.h"         // LightController class
+#include "pcbi_ir.h"
 
 // DHT 22 setting
 #define DHTPIN 13               // 
@@ -56,6 +55,7 @@ DHT dht(DHTPIN, DHTTYPE);
 BlynkTimer timer;
 BlynkTimer ledTimer;
 LightController lc;
+RGBRemoteController ir;
 int ledTimerID;
 
 // global variables
@@ -77,7 +77,7 @@ void setup() {
   touch.init();
   
   // setup blynk app
-  timer.setInterval(1000L, sendTemperatureHumidity);  // Setup a function to be called every second
+  //timer.setInterval(1000L, sendTemperatureHumidity);  // Setup a function to be called every second
   //ledTimerID = ledTimer.setInterval(effect_speed*100, runLEDMode);             // timer for led modes/effects
 
   Blynk.virtualWrite(V1, (int)(lc.getBrightness() * 100));   // set default brightness
@@ -131,7 +131,14 @@ BLYNK_WRITE(V5) {
 
 void loop() {
 
-  if (on_off) {
+
+  
+  //handleClap( );
+  //handleTouch ();
+  ir.checkIRRemote ();
+  lc.all_leds(0, 0, 0, 255);
+
+ /* if (on_off) {
     switch (lc.getEffectMode () ) {
 
       case 0:   // Normal (Warm White)
@@ -166,15 +173,12 @@ void loop() {
     
   else {
     lc.all_off ();
-  }
-
+  }*/
   
-  //handleClap( );
-  handleTouch ();
 
   Blynk.run();
-  timer.run();
-  ArduinoOTA.handle();  // For OTA
+  //timer.run();
+  //ArduinoOTA.handle();  // For OTA
 }
 
 // handle hand clap
