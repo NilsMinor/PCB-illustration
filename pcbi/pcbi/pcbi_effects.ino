@@ -28,9 +28,10 @@ void LightController::connectWLANIndicator (void) {
   all_off ();
 }
 
+
 void LightController::rainbowCycle (void) {
   uint16_t i, j;
-   
+  /* 
   for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
     for(i=0; i< PIXEL_COUNT_FRONT; i++) {
       strip->setPixelColor(i, Wheel(((i * 256 / PIXEL_COUNT_FRONT) + j) & 255, strip));
@@ -41,4 +42,5 @@ void LightController::rainbowCycle (void) {
     strip->show();
     Blynk.run(); 
   }
+  */
 }

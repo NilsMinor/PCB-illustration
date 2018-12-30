@@ -136,9 +136,9 @@ void loop() {
   //handleClap( );
   //handleTouch ();
   ir.checkIRRemote ();
-  lc.all_leds(0, 0, 0, 255);
+   
 
- /* if (on_off) {
+  if (on_off) {
     switch (lc.getEffectMode () ) {
 
       case 0:   // Normal (Warm White)
@@ -158,7 +158,8 @@ void loop() {
         break;
         
       case 3: // music mode
-            lc.musicMode ( );
+            //lc.musicMode ( );
+            yield();
         break;
   
       case 4: // RGB (rainbow)
@@ -173,15 +174,16 @@ void loop() {
     
   else {
     lc.all_off ();
-  }*/
+  }
   
 
   Blynk.run();
-  //timer.run();
-  //ArduinoOTA.handle();  // For OTA
+  timer.run();
+  ArduinoOTA.handle();  // For OTA
 }
 
 // handle hand clap
+
 void handleClap (void) {
 
   static int claps = 0;
@@ -204,7 +206,7 @@ void handleClap (void) {
   //Serial.println(adc_value);
 
 
-  int sensorState = digitalRead(MIC_PIN);
+  //int sensorState = digitalRead(MIC_PIN);
  
   if ((adc_value > 200 && claps == 0) || adc_value > 100 && claps == 1)
   {

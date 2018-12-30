@@ -4,12 +4,13 @@
 // control functions and effects for pcbi light panel
 
 #include "Arduino.h"
-#include <Adafruit_NeoPixel.h>
+#include "FastLED.h"
+#include "FastLED_RGBW.h"
 
-#include "musicRGB.h"
+//#include "musicRGB.h"
 
 // LED strip related configs
-#define PIXEL_PIN               12                                    // Wemos pin D6 
+#define DATA_PIN                12                                    // Wemos pin D6 
 #define PIXEL_COUNT_BACK        (5*26)                                // Pixels count backlight 5 rows a 26 leds per strip
 #define PIXEL_COUNT_FRONT       159                                   // Pixels count front 1 row   
 #define PIXEL_COUNT             (PIXEL_COUNT_FRONT+PIXEL_COUNT_BACK)  // Total pixel count
@@ -42,11 +43,11 @@ class LightController{
 
     // effects
     void    rainbowCycle (void);
-    void    Fire(int Cooling, int Sparking, int SpeedDelay);
     void    musicMode (void);
 
   private:
-    Adafruit_NeoPixel * strip;
+    CRGBW leds[PIXEL_COUNT];
+    CRGB *ledsRGB = (CRGB *) &leds[0];
     float   brightness;
     uint8_t effect_speed;
     uint8_t selected_mode;
