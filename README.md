@@ -34,6 +34,7 @@ Thinks I plan to implement:
 - [ ] :electric_plug: MOSFET based on of switch for LED strip to reduce power consumption
 - [ ] :clap: Double clap detection to control the panel 
 - [ ] :musical_note: Music controlled LED strip using fft 
+- [ ] :link: ir remote control using common rgb remote from ebay
 
 
  
