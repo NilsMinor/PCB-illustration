@@ -43,25 +43,7 @@ void LightController::nextEffectMode  (uint8_t v) {
   selected_mode = ( selected_mode + v ) % MAX_MODE;
 }
 
-// Connect to WLAN, wait while not conected
-void LightController::connectWLANIndicator (void) {
-  
-  all_off ();
 
-  // wait for wlan connection
-  Serial.print("Connecting");
-  for (int i=0;i!=25;i++)
-    single_led (i,0,0,255,0);
-    
-  while (Blynk.connect() == false) { 
-    Serial.print(".");
-    delay(100); 
-  } 
-  Serial.println();
-
-  Serial.print("connected");
-  all_off ();
-}
 
 void LightController::runLEDMode (void) {
 
@@ -107,21 +89,7 @@ void LightController::single_led (uint8_t pin, uint8_t r, uint8_t g, uint8_t b, 
   strip->show();
 }
 
-void LightController::rainbowCycle (void) {
-  uint16_t i, j;
-   
-  for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
-    for(i=0; i< PIXEL_COUNT_FRONT; i++) {
-      strip->setPixelColor(i, Wheel(((i * 256 / PIXEL_COUNT_FRONT) + j) & 255, strip));
-      //handleTouch ();
-      if (selected_mode != MODE_RAINBOW) return;
-      Blynk.run();   
-    }
-    strip->show();
-    Blynk.run(); 
-  }
-  
-}
+
 
 void LightController::setPixelHeatColor (int Pixel, byte temperature) {
   // Scale 'heat' down from 0-255 to 0-191
