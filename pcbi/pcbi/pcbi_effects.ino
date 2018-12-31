@@ -16,7 +16,7 @@ void LightController::connectWLANIndicator (void) {
   // wait for wlan connection
   Serial.print("Connecting");
   for (int i=0;i!=25;i++)
-    single_led (i,0,0,255,0);
+    fl_single_led_set (i,0,0,255,0);
     
   while (Blynk.connect() == false) { 
     Serial.print(".");

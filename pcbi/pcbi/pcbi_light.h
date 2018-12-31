@@ -2,6 +2,7 @@
 #define _PCBI_LIGHT_H_
 
 // control functions and effects for pcbi light panel
+// based on https://www.partsnotincluded.com/neopixels/fastled-rgbw-neopixels-sk6812/ to use fastLED with sk6812 rgbw
 
 #include "Arduino.h"
 #include "FastLED.h"
@@ -31,14 +32,15 @@ class LightController{
     void    setEffectMode   (uint8_t mo);
     void    nextEffectMode  (uint8_t v);
 
+    void    fl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
+    void    fl_single_led_set (uint8_t led, uint8_t r, uint8_t g, uint8_t b, uint8_t w);
+    void    bl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
+    void    bl_single_led_set (uint8_t led, uint8_t r, uint8_t g, uint8_t b, uint8_t w);
+
     void    connectWLANIndicator (void);
-    void    all_on (void);
     void    all_off (void);
-    void    all_color (uint8_t r, uint8_t g, uint8_t b);
-    void    single_led (uint8_t pin, uint8_t r, uint8_t g, uint8_t b, uint8_t w);
-    void    all_leds (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
-    void    bl_all_leds (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
-    
+    void    all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
+     
     void    runLEDMode (void);
 
     // effects

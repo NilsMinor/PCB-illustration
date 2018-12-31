@@ -24,6 +24,7 @@ void  LightController::setBrightness (float br) {
   if (br >= 0 && br <= 1.0) {
     brightness = br;
     FastLED.setBrightness(brightness * 255);
+    FastLED.show();
   }
 }
 
@@ -67,35 +68,39 @@ void LightController::runLEDMode (void) {
         break;
     }
 }
-void LightController::all_off (void) {
-   all_leds (0,0,0,0);
-   bl_all_leds (0,0,0,0);
-}
 
-// set all leds with one command
-void LightController::all_leds (uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
+
+
+void LightController::fl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
   for (int i=0;i!=PIXEL_COUNT_FRONT;i++) {
     leds[i] = CRGBW(r,g,b,w);
   }
   FastLED.show();
 }
-
-void LightController::bl_all_leds (uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
+void LightController::fl_single_led_set (uint8_t led, uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
+  if(led <= PIXEL_COUNT_FRONT) {
+    leds[led] = CRGBW(r,g,b,w);
+    FastLED.show();
+  }
+}
+void LightController::bl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
   for (int i=PIXEL_COUNT_FRONT;i!=PIXEL_COUNT;i++) {
-      leds[i] = CRGBW(r,g,b,w);
+    leds[i] = CRGBW(r,g,b,w);
   }
   FastLED.show();
 }
-
-void LightController::single_led (uint8_t pin, uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
-  leds[pin] = CRGBW(r,g,b,w);
-  FastLED.show();
+void LightController::bl_single_led_set (uint8_t led, uint8_t r, uint8_t g, uint8_t b, uint8_t w){
+  if(led <= PIXEL_COUNT_BACK) {
+    leds[led+PIXEL_COUNT_FRONT] = CRGBW(r,g,b,w);
+    FastLED.show();
+  }
+}
+void LightController::all_off (void) {
+   fl_all_leds_set (0,0,0,0);
+   bl_all_leds_set (0,0,0,0);
 }
 
-
-
-/*void LightController::musicMode (void) {
-  musicRGBFFT ( );
-  musicRGBcolor (strip);
-  if (selected_mode != MODE_MUSIC) return;
-}*/
+void LightController::all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
+   fl_all_leds_set (r, g, b, w);
+   bl_all_leds_set (r, g, b, w);
+}

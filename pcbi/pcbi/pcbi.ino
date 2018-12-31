@@ -91,7 +91,7 @@ void setup() {
   ArduinoOTA.onStart([]() {
     lc.all_off ();
     for (int i=0;i!=25;i++)
-      lc.single_led (i,0,255,0,0);
+      lc.fl_single_led_set (i,0,255,0,0);
   });
   
 }
@@ -121,7 +121,7 @@ BLYNK_WRITE(V4) {
 }
 
 BLYNK_WRITE(V5) {
-  lc.all_leds(  param [0].asInt (),
+  lc.fl_all_leds_set(  param [0].asInt (),
                 param [1].asInt (),
                 param [2].asInt (),
                 0);
@@ -143,13 +143,13 @@ void loop() {
 
       case 0:   // Normal (Warm White)
       case 255:
-              lc.all_leds(0, 0, 0, 255);
-              lc.bl_all_leds(0, 0, 0, 0);
+              lc.fl_all_leds_set(0, 0, 0, 255);
+              lc.bl_all_leds_set(0, 0, 0, 0);
         break;
       
       case 1: // Normal (Fading 1)
-              lc.all_leds (0,0,0,0);
-              lc.bl_all_leds(0, 0, 0, 255);
+              lc.fl_all_leds_set (0,0,0,0);
+              lc.bl_all_leds_set(0, 0, 0, 255);
         break;
   
       case 2: // RGB (free-wheel)
