@@ -12,7 +12,7 @@ LightController::LightController ( ) {
 
   brightness = 0.5;
   effect_speed = 5;
-  selected_mode = 1;
+  selected_mode = 0;
   
   // musiRGBInit ();
 }
@@ -27,7 +27,21 @@ void  LightController::setBrightness (float br) {
     FastLED.show();
   }
 }
-
+void  LightController::upBrightness (void) {
+  if (brightness <= 1.0) {
+    brightness += BR_STEP;
+    FastLED.setBrightness(brightness * 255);
+    FastLED.show();
+  }
+}
+void  LightController::downBrightness (void) {
+  if (brightness > BR_STEP ) {
+    brightness -= BR_STEP;
+    Serial.println(brightness);
+    FastLED.setBrightness(brightness * 255);
+    FastLED.show();
+  }
+}
 uint8_t LightController::getEffectSpeed (void) {
   return effect_speed;
 }
@@ -74,26 +88,34 @@ void LightController::runLEDMode (void) {
 void LightController::fl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
   for (int i=0;i!=PIXEL_COUNT_FRONT;i++) {
     leds[i] = CRGBW(r,g,b,w);
+    
   }
-  FastLED.show();
+  //FastLED.show();
+}
+
+void LightController::fl_all_leds_set (CRGB c) {
+  for(int i = 0; i < PIXEL_COUNT_FRONT; i++){
+    leds[i] = c;
+  }
+  //FastLED.show();
 }
 void LightController::fl_single_led_set (uint8_t led, uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
   if(led <= PIXEL_COUNT_FRONT) {
     leds[led] = CRGBW(r,g,b,w);
-    FastLED.show();
   }
+  //FastLED.show();
 }
 void LightController::bl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
   for (int i=PIXEL_COUNT_FRONT;i!=PIXEL_COUNT;i++) {
     leds[i] = CRGBW(r,g,b,w);
   }
-  FastLED.show();
+  //FastLED.show();
 }
 void LightController::bl_single_led_set (uint8_t led, uint8_t r, uint8_t g, uint8_t b, uint8_t w){
   if(led <= PIXEL_COUNT_BACK) {
     leds[led+PIXEL_COUNT_FRONT] = CRGBW(r,g,b,w);
-    FastLED.show();
   }
+  //FastLED.show();
 }
 void LightController::all_off (void) {
    fl_all_leds_set (0,0,0,0);
@@ -103,4 +125,7 @@ void LightController::all_off (void) {
 void LightController::all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
    fl_all_leds_set (r, g, b, w);
    bl_all_leds_set (r, g, b, w);
+}
+void LightController::update (void) {
+  FastLED.show();
 }

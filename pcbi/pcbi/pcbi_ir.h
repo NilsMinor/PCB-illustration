@@ -14,34 +14,47 @@
 #include <IRremoteESP8266.h>
 #include <IRutils.h>
 #include "Arduino.h"
+#include "FastLED.h"    // required for callback
 
 #define IR_PIN          2
 #define IR_CODES        8
+
+typedef void (*Callback)(void);
+typedef void (*Callback)(void);
 
 enum ir_codes_pos {
   ir_error = -1,
   ir_on = 0, 
   ir_off, 
   ir_lup,
-  ir_ldown,
+  ir_ldn,
   ir_red,
   ir_green,
   ir_blue,
   ir_white
   };
 
-
 class RGBRemoteController{
   public:
     RGBRemoteController ();
     bool checkIRRemote (void);
 
+    void setCallbackOn  (void (*_cbOn)(void));
+    void setCallbackOff (void (*_cbOff)(void));
+    void setCallbackLup (void (*_cbLup)(void));
+    void setCallbackLdn (void (*_cbLdn)(void));
+
   private:
     
-    ir_codes_pos translateIRCode (void);
+    ir_codes_pos resolveIRCode (void);
     
     IRrecv *irrecv;
-    decode_results results;  // Somewhere to store the results 
+    decode_results results;  
+
+    void (*cbOn)  (void);
+    void (*cbOff) (void);
+    void (*cbLup) (void);
+    void (*cbLdn) (void);
     
 
 };

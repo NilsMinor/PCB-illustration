@@ -67,6 +67,12 @@ void sendTemperatureHumidity(void);
 void handleTouch (void);
 void handleClap (void);
 
+void lightTurnOn (void) { on_off = true; }
+void lightTurnOff (void) { on_off = false; }
+void lightTurnUp (void) { lc.upBrightness (); }
+void lightTurnDn (void) { lc.downBrightness (); }
+//void lightTurnColor 
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
@@ -93,7 +99,11 @@ void setup() {
     for (int i=0;i!=25;i++)
       lc.fl_single_led_set (i,0,255,0,0);
   });
-  
+
+  ir.setCallbackOn  ( &lightTurnOn );
+  ir.setCallbackOff ( &lightTurnOff );
+  ir.setCallbackLup ( &lightTurnUp );
+  ir.setCallbackLdn ( &lightTurnDn );
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -137,7 +147,6 @@ void loop() {
   //handleTouch ();
   ir.checkIRRemote ();
    
-
   if (on_off) {
     switch (lc.getEffectMode () ) {
 
@@ -149,7 +158,7 @@ void loop() {
       
       case 1: // Normal (Fading 1)
               lc.fl_all_leds_set (0,0,0,0);
-              lc.bl_all_leds_set(0, 0, 0, 255);
+              lc.bl_all_leds_set (0, 0, 0, 255);
         break;
   
       case 2: // RGB (free-wheel)
@@ -178,6 +187,7 @@ void loop() {
   
 
   Blynk.run();
+  lc.update ();   // update leds
   timer.run();
   ArduinoOTA.handle();  // For OTA
 }

@@ -16,6 +16,8 @@
 #define PIXEL_COUNT_FRONT       159                                   // Pixels count front 1 row   
 #define PIXEL_COUNT             (PIXEL_COUNT_FRONT+PIXEL_COUNT_BACK)  // Total pixel count
 #define MAX_MODE                6                                     // max modes
+#define BR_STEP                 (double)0.1                                   // brightness step
+
 
 #define MODE_MUSIC              3
 #define MODE_RAINBOW            4
@@ -26,14 +28,19 @@ class LightController{
     LightController ( );
     float   getBrightness   (void);
     void    setBrightness   (float br);
+    void    upBrightness    (void);
+    void    downBrightness  (void);
     uint8_t getEffectSpeed  (void);
     void    setEffectSpeed  (uint8_t es);
     uint8_t getEffectMode   (void);
     void    setEffectMode   (uint8_t mo);
     void    nextEffectMode  (uint8_t v);
+    void    update (void);
 
     void    fl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
     void    fl_single_led_set (uint8_t led, uint8_t r, uint8_t g, uint8_t b, uint8_t w);
+    void    fl_all_leds_set (CRGB c);
+    
     void    bl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
     void    bl_single_led_set (uint8_t led, uint8_t r, uint8_t g, uint8_t b, uint8_t w);
 
