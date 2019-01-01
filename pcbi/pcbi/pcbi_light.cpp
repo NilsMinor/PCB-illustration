@@ -37,7 +37,6 @@ void  LightController::upBrightness (void) {
 void  LightController::downBrightness (void) {
   if (brightness > BR_STEP ) {
     brightness -= BR_STEP;
-    Serial.println(brightness);
     FastLED.setBrightness(brightness * 255);
     FastLED.show();
   }
@@ -61,15 +60,12 @@ void LightController::nextEffectMode  (uint8_t v) {
   selected_mode = ( selected_mode + v ) % MAX_MODE;
 }
 
-
-
 void LightController::runLEDMode (void) {
 
    static unsigned long CurrentTime = 0;
    CurrentTime = millis();
    Serial.print ("Elapsed Time: ");
    Serial.println(CurrentTime);
-
    
   switch (selected_mode) {
  

@@ -16,10 +16,10 @@
 #include "Arduino.h"
 #include "FastLED.h"    // required for callback
 
-#define IR_PIN          2
-#define IR_CODES        8
+#define IR_PIN                  2
+#define IR_COMAND_CODES         8
+#define IR_COLOR_CODES          16
 
-typedef void (*Callback)(void);
 typedef void (*Callback)(void);
 
 enum ir_codes_pos {
@@ -28,34 +28,39 @@ enum ir_codes_pos {
   ir_off, 
   ir_lup,
   ir_ldn,
-  ir_red,
-  ir_green,
-  ir_blue,
-  ir_white
+  ir_flash,
+  ir_strobe,
+  ir_fade,
+  ir_smooth,
+  ir_color
   };
 
 class RGBRemoteController{
   public:
     RGBRemoteController ();
     bool checkIRRemote (void);
+    CRGB getCallbackColor (void);
 
-    void setCallbackOn  (void (*_cbOn)(void));
-    void setCallbackOff (void (*_cbOff)(void));
-    void setCallbackLup (void (*_cbLup)(void));
-    void setCallbackLdn (void (*_cbLdn)(void));
+    void setCallbackOn   (void (*_cbOn) (void));
+    void setCallbackOff  (void (*_cbOff)(void));
+    void setCallbackLup  (void (*_cbLup)(void));
+    void setCallbackLdn  (void (*_cbLdn)(void));
+    void setCalbackColor (void (*_cbCol)(void));
 
   private:
     
     ir_codes_pos resolveIRCode (void);
+    ir_codes_pos resolveColor (void);
     
-    IRrecv *irrecv;
+    IRrecv * irrecv;
     decode_results results;  
+    CRGB selectedColor;
 
     void (*cbOn)  (void);
     void (*cbOff) (void);
     void (*cbLup) (void);
     void (*cbLdn) (void);
-    
+    void (*cbCol) (void);
 
 };
 

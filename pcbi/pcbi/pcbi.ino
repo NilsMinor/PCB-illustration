@@ -71,7 +71,17 @@ void lightTurnOn (void) { on_off = true; }
 void lightTurnOff (void) { on_off = false; }
 void lightTurnUp (void) { lc.upBrightness (); }
 void lightTurnDn (void) { lc.downBrightness (); }
-//void lightTurnColor 
+void lightTurnColor (void) { 
+  // change mode to rgb wheel
+  lc.setEffectMode(2);
+  Blynk.virtualWrite(V3, lc.getEffectMode());
+
+  // resolve selected color
+  CRGB color = ir.getCallbackColor (); 
+
+  lc.fl_all_leds_set(color);
+  
+}
 
 void setup() {
   // put your setup code here, to run once:
@@ -100,10 +110,11 @@ void setup() {
       lc.fl_single_led_set (i,0,255,0,0);
   });
 
-  ir.setCallbackOn  ( &lightTurnOn );
-  ir.setCallbackOff ( &lightTurnOff );
-  ir.setCallbackLup ( &lightTurnUp );
-  ir.setCallbackLdn ( &lightTurnDn );
+  ir.setCallbackOn   ( &lightTurnOn );
+  ir.setCallbackOff  ( &lightTurnOff );
+  ir.setCallbackLup  ( &lightTurnUp );
+  ir.setCallbackLdn  ( &lightTurnDn );
+  ir.setCalbackColor ( &lightTurnColor );
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -141,8 +152,6 @@ BLYNK_WRITE(V5) {
 
 void loop() {
 
-
-  
   //handleClap( );
   //handleTouch ();
   ir.checkIRRemote ();
