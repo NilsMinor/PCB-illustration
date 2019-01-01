@@ -12,7 +12,10 @@ uint64_t ir_col [] = { 0xFF9867, 0xFFD827, 0xFF8877, 0xFFA857,
                        0xFF6897, 0xFF20DF, 0xFF708F, 0xFFF00F}; // blue column top > down
 
                        
-CRGB remote_colors [] = {CRGB::Red, CRGB::Green, CRGB::Blue, CRGB::White};
+CRGB remote_colors [] = {CRGB::Red, CRGB::Green, CRGB::Blue, CRGB::White,
+                         CRGB::Crimson, CRGB::DarkOrange, CRGB::Gold, CRGB::Orange,
+                         CRGB::DarkGreen, CRGB::DeepSkyBlue, CRGB::DodgerBlue, CRGB::DarkTurquoise,
+                         CRGB::MediumSlateBlue, CRGB::Indigo, CRGB::DarkViolet, CRGB::DeepPink };
 
 RGBRemoteController::RGBRemoteController () {
   irrecv = new IRrecv (IR_PIN);
@@ -74,7 +77,7 @@ ir_codes_pos RGBRemoteController::resolveIRCode (void) {
         selectedColor = remote_colors [ code ];
         return ir_color;
       }
-    }
+   }
   
   return ir_error;
 }
