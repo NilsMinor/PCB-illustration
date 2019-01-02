@@ -15,10 +15,9 @@
 #define PIXEL_COUNT_BACK        (5*26)                                // Pixels count backlight 5 rows a 26 leds per strip
 #define PIXEL_COUNT_FRONT       159                                   // Pixels count front 1 row   
 #define PIXEL_COUNT             (PIXEL_COUNT_FRONT+PIXEL_COUNT_BACK)  // Total pixel count
-#define MAX_MODE                6                                     // max modes
 #define BR_STEP                 (double)0.1                                   // brightness step
 
-
+#define MAX_MODE                6                                     // max modes
 #define MODE_MUSIC              3
 #define MODE_RAINBOW            4
 #define MODE_FIRE               5
@@ -34,7 +33,8 @@ class LightController{
     void    setEffectSpeed  (uint8_t es);
     uint8_t getEffectMode   (void);
     void    setEffectMode   (uint8_t mo);
-    void    nextEffectMode  (uint8_t v);
+    void    nextEffectMode  (void);
+    void    prevEffectMode  (void);
     void    update (void);
 
     void    fl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
@@ -49,6 +49,7 @@ class LightController{
     void    all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
      
     void    runLEDMode (void);
+    void    colorWheelMode (uint8_t value);
 
     // effects
     void    rainbowCycle (void);
@@ -63,6 +64,7 @@ class LightController{
     uint8_t red;
     uint8_t green;
     uint8_t blue;
+    CRGB wheel(uint8_t WheelPos);
 
     void    setPixelHeatColor (int Pixel, byte temperature);
   

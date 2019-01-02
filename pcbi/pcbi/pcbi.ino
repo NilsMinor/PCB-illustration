@@ -38,6 +38,7 @@
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
+
 const char* host = "PCBi panel";
 
 #include "Seeed_CY8C401XX.h"    // Grove touch sensor
@@ -58,6 +59,9 @@ LightController lc;
 RGBRemoteController ir;
 int ledTimerID;
 
+
+
+
 // global variables
 
 bool on_off = false;
@@ -71,6 +75,8 @@ void lightTurnOn (void) { on_off = true; }
 void lightTurnOff (void) { on_off = false; }
 void lightTurnUp (void) { lc.upBrightness (); }
 void lightTurnDn (void) { lc.downBrightness (); }
+void lightEffectUp (void) { lc.nextEffectMode(); }
+void lightEffectDn (void) { lc.prevEffectMode(); }
 void lightTurnColor (void) { 
   // change mode to rgb wheel
   lc.setEffectMode(2);
@@ -80,7 +86,6 @@ void lightTurnColor (void) {
   CRGB color = ir.getCallbackColor (); 
 
   lc.fl_all_leds_set(color);
-  
 }
 
 void setup() {
@@ -115,6 +120,8 @@ void setup() {
   ir.setCallbackLup  ( &lightTurnUp );
   ir.setCallbackLdn  ( &lightTurnDn );
   ir.setCalbackColor ( &lightTurnColor );
+  ir.setCalbackEffectUp ( &lightEffectUp );
+  ir.setCalbackEffectDn ( &lightEffectDn );
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -128,7 +135,10 @@ BLYNK_WRITE(V1) {
 }
 
 BLYNK_WRITE(V2) {
-  lc.nextEffectMode (param.asInt());
+  if (param.asInt() == 1)
+    lc.nextEffectMode ( );
+  else
+    lc.prevEffectMode ( );
   Blynk.virtualWrite(V3, lc.getEffectMode());
 }
 BLYNK_WRITE(V3) {
@@ -154,6 +164,7 @@ void loop() {
 
   //handleClap( );
   //handleTouch ();
+
   ir.checkIRRemote ();
    
   if (on_off) {
@@ -181,11 +192,11 @@ void loop() {
         break;
   
       case 4: // RGB (rainbow)
-            lc.runLEDMode ( );   // timer based effect
+            //lc.runLEDMode ( );   // timer based effect
         break;
 
       case 5: // RGB (Feuer)
-            lc.runLEDMode ( );   // timer based effect
+           // lc.runLEDMode ( );   // timer based effect
         break;
     }
   }
@@ -283,7 +294,7 @@ void handleTouch (void) {
         pressed2 = true;
         Serial.println("button 1 is pressed");
   
-        lc.nextEffectMode (1); // +1
+        lc.nextEffectMode ( ); 
     }
     else if(!(value&0x02) && pressed2 == true) {   // button was released
         Serial.println("button 1 is released");

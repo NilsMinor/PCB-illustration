@@ -7,7 +7,6 @@
 
 #include "pcbi_light.h"
 
-
 // Connect to WLAN, wait while not conected
 void LightController::connectWLANIndicator (void) {
   

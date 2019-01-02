@@ -37,8 +37,8 @@ bool RGBRemoteController::checkIRRemote (void) {
       case ir_off:      cbOff (); break;
       case ir_lup:      cbLup (); break;
       case ir_ldn:      cbLdn (); break;
-      case ir_flash:    break;
-      case ir_strobe:   break;
+      case ir_flash:    cbEup (); break;
+      case ir_strobe:   cbEdn (); break;
       case ir_fade:     break;
       case ir_smooth:   break;
       case ir_color:    cbCol (); break;  // color must be loaded before
@@ -57,8 +57,6 @@ bool RGBRemoteController::checkIRRemote (void) {
 CRGB RGBRemoteController::getCallbackColor (void) {
   return selectedColor;
 }
-
-
 
 // Translate code to enum in order to know the button
 ir_codes_pos RGBRemoteController::resolveIRCode (void) {
@@ -87,3 +85,5 @@ void RGBRemoteController::setCallbackOff  (void (*_cbOff)(void)) { cbOff   = _cb
 void RGBRemoteController::setCallbackLup  (void (*_cbLup)(void)) { cbLup   = _cbLup; }
 void RGBRemoteController::setCallbackLdn  (void (*_cbLdn)(void)) { cbLdn   = _cbLdn; }
 void RGBRemoteController::setCalbackColor (void (*_cbCol)(void)) { cbCol   = _cbCol; }
+void RGBRemoteController::setCalbackEffectUp  (void (*_cbEup)(void)) { cbEup   = _cbEup; }
+void RGBRemoteController::setCalbackEffectDn  (void (*_cbEdn)(void)) { cbEdn   = _cbEdn; }
