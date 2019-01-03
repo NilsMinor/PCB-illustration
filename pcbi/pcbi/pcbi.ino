@@ -64,6 +64,7 @@ int ledTimerID;
 
 // global variables
 
+uint8_t red, green, blue;
 bool on_off = false;
 unsigned long previousTime = 0;
 
@@ -71,24 +72,45 @@ void sendTemperatureHumidity(void);
 void handleTouch (void);
 void handleClap (void);
 
-void lightTurnOn (void) { on_off = true; }
-void lightTurnOff (void) { on_off = false; }
-void lightTurnUp (void) { lc.upBrightness (); }
-void lightTurnDn (void) { lc.downBrightness (); }
-void lightEffectUp (void) { lc.nextEffectMode(); }
-void lightEffectDn (void) { lc.prevEffectMode(); }
+void lightTurnOn (void) { 
+  on_off = true; 
+  Blynk.virtualWrite (V0, on_off);
+}
+void lightTurnOff (void) { 
+  on_off = false; 
+  Blynk.virtualWrite (V0, on_off);
+}
+void lightTurnUp (void) { 
+  lc.upBrightness (); 
+  Blynk.virtualWrite (V1, (int)(lc.getBrightness()*100));
+}
+void lightTurnDn (void) { 
+  lc.downBrightness (); 
+  Blynk.virtualWrite (V1, (int)(lc.getBrightness()*100));
+}
+void lightEffectUp (void) { 
+  lc.nextEffectMode(); 
+  Blynk.virtualWrite(V3, lc.getEffectMode());  
+}
+void lightEffectDn (void) { 
+  lc.prevEffectMode(); 
+  Blynk.virtualWrite(V3, lc.getEffectMode());
+}
 void lightTurnColor (void) { 
   // change mode to rgb wheel
   lc.setEffectMode(2);
   Blynk.virtualWrite(V3, lc.getEffectMode());
-
   // resolve selected color
-  CRGB color = ir.getCallbackColor (); 
-
-  lc.fl_all_leds_set(color);
+  CRGB color = ir.getCallbackColor ();
+  red = color.red;
+  green = color.green;
+  blue = color.blue;
+  //lc.fl_all_leds_set(color);
 }
 
 void setup() {
+
+  red = green = blue = 0;
   // put your setup code here, to run once:
   Serial.begin(115200);
   Blynk.begin(auth, wlan_name, wlan_pw);
@@ -152,10 +174,9 @@ BLYNK_WRITE(V4) {
 }
 
 BLYNK_WRITE(V5) {
-  lc.fl_all_leds_set(  param [0].asInt (),
-                param [1].asInt (),
-                param [2].asInt (),
-                0);
+  red = param [0].asInt ();
+  green = param [1].asInt ();
+  blue = param [2].asInt ();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -168,31 +189,28 @@ void loop() {
   ir.checkIRRemote ();
    
   if (on_off) {
-    switch (lc.getEffectMode () ) {
+    switch ( lc.getEffectMode () ) {
 
-      case 0:   // Normal (Warm White)
-      case 255:
+      case 0:   // Frontlight (Warm White)
               lc.fl_all_leds_set(0, 0, 0, 255);
               lc.bl_all_leds_set(0, 0, 0, 0);
         break;
       
-      case 1: // Normal (Fading 1)
+      case 1: // Backlight (Warm White)
               lc.fl_all_leds_set (0,0,0,0);
               lc.bl_all_leds_set (0, 0, 0, 255);
         break;
   
       case 2: // RGB (free-wheel)
-              //lc.all_leds(red, green, blue,0);
-              //lc.bl_all_leds(red, green, blue,0);
+              lc.fl_all_leds_set( red, green, blue, 0);
+              lc.bl_all_leds_set (0, 0, 0, 0);
         break;
         
       case 3: // music mode
-            //lc.musicMode ( );
-            yield();
+             
         break;
   
-      case 4: // RGB (rainbow)
-            //lc.runLEDMode ( );   // timer based effect
+      case 4:  
         break;
 
       case 5: // RGB (Feuer)

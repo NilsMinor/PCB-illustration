@@ -29,8 +29,8 @@ bool RGBRemoteController::checkIRRemote (void) {
   if (irrecv->decode(&results)) {
     // print() & println() can't handle printing long longs. (uint64_t)
     ir_codes_pos code = resolveIRCode();
-    Serial.print ("IR Code nr: ");
-    Serial.println (code);
+    //Serial.print ("IR Code nr: ");
+    //Serial.println (code);
 
     switch (code) {
       case ir_on:       cbOn (); break;
@@ -44,9 +44,9 @@ bool RGBRemoteController::checkIRRemote (void) {
       case ir_color:    cbCol (); break;  // color must be loaded before
       
       default : 
-        Serial.print("Not implemented Code: 0x");
+        /*Serial.print("Not implemented Code: 0x");
         serialPrintUint64(results.value, HEX); 
-        Serial.println();
+        Serial.println();*/
         break;
     }
 
