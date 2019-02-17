@@ -35,11 +35,11 @@
 #define PIXEL_COUNT_BACK        (5*26)                                // Pixels count backlight 5 rows a 26 leds per strip
 #define PIXEL_COUNT_FRONT       159                                   // Pixels count front 1 row   
 #define PIXEL_COUNT             (PIXEL_COUNT_FRONT+PIXEL_COUNT_BACK)  // Total pixel count
-#define BR_STEP                 (double)0.1                                   // brightness step
+#define BR_STEP                 (double)0.1                           // brightness step
 #define LED_PWR_PIN             14
 
 #define MAX_MODE                6                                     // max modes
-#define MODE_MUSIC              3
+#define MODE_COLOR_SHIFT        3
 #define MODE_RAINBOW            4
 #define MODE_FIRE               5
 
@@ -50,18 +50,19 @@ class LightController{
     void    setBrightness   (float br);
     void    upBrightness    (void);
     void    downBrightness  (void);
-    uint8_t getEffectSpeed  (void);
-    void    setEffectSpeed  (uint8_t es);
+    uint16_t getEffectSpeed  (void);
+    void    setEffectSpeed  (uint16_t es);
     uint8_t getEffectMode   (void);
     void    setEffectMode   (uint8_t mo);
     void    nextEffectMode  (void);
     void    prevEffectMode  (void);
     void    update (void);
 
-    void    fl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
-    void    fl_single_led_set (uint8_t led, uint8_t r, uint8_t g, uint8_t b, uint8_t w);
     void    fl_all_leds_set (CRGB c);
-    
+    void    fl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
+    void    fl_single_led_set (uint16_t led, CRGB c);
+    void    fl_single_led_set (uint16_t led, uint8_t r, uint8_t g, uint8_t b, uint8_t w);
+        
     void    bl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
     void    bl_single_led_set (uint8_t led, uint8_t r, uint8_t g, uint8_t b, uint8_t w);
 
@@ -73,14 +74,16 @@ class LightController{
     void    colorWheelMode (uint8_t value);
 
     // effects
-    void    rainbowCycle (void);
+    void    rainbowCycleFront (void);
     void    musicMode (void);
+    void    collorShiftAll (void);
+    void    Fire (int Cooling, int Sparking, int SpeedDelay);
 
   private:
     CRGBW leds[PIXEL_COUNT];
     CRGB *ledsRGB = (CRGB *) &leds[0];
     float   brightness;
-    uint8_t effect_speed;
+    uint16_t effect_speed;
     uint8_t selected_mode;
     uint8_t red;
     uint8_t green;

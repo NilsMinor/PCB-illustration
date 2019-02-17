@@ -12,6 +12,8 @@ LightController::LightController ( ) {
   brightness = 0.8;
   effect_speed = 5;
   selected_mode = 0;
+
+  setEffectSpeed (1000);
   pinMode (LED_PWR_PIN, OUTPUT);
   digitalWrite(LED_PWR_PIN, HIGH);
   
@@ -42,12 +44,11 @@ void  LightController::downBrightness (void) {
     FastLED.show();
   }
 }
-uint8_t LightController::getEffectSpeed (void) {
+uint16_t LightController::getEffectSpeed (void) {
   return effect_speed;
 }
-void LightController::setEffectSpeed (uint8_t es) {
-  if (es <= 10)
-    effect_speed = es;
+void LightController::setEffectSpeed (uint16_t es) {
+  effect_speed = es;
 }
 
 uint8_t LightController::getEffectMode   (void) {
@@ -65,24 +66,6 @@ void LightController::prevEffectMode  (void) {
   selected_mode = ( selected_mode + MAX_MODE- 1 ) % MAX_MODE;
   Serial.println(selected_mode);
 }
-void LightController::runLEDMode (void) {
-
-   static unsigned long CurrentTime = 0;
-   CurrentTime = millis();
-   Serial.print ("Elapsed Time: ");
-   Serial.println(CurrentTime);
-   
-  switch (selected_mode) {
- 
-      case MODE_RAINBOW:  // RGB (rainbow)
-           rainbowCycle ( );
-        break;
-
-      case MODE_FIRE:     // RGB (fire)
-           // Fire(55,120,15);
-        break;
-    }
-}
 
 void LightController::fl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
   for (int i=0;i!=PIXEL_COUNT_FRONT;i++) {
@@ -97,7 +80,12 @@ void LightController::fl_all_leds_set (CRGB c) {
     leds[i] = c;
   }
 }
-void LightController::fl_single_led_set (uint8_t led, uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
+void LightController::fl_single_led_set (uint16_t led, CRGB c) {
+  if(led <= PIXEL_COUNT_FRONT) {
+    leds[led] = c;
+  }
+}
+void LightController::fl_single_led_set (uint16_t led, uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
   if(led <= PIXEL_COUNT_FRONT) {
     leds[led] = CRGBW(r,g,b,w);
   }
@@ -127,24 +115,4 @@ void LightController::update (void) {
 
 void LightController::colorWheelMode (uint8_t value) {
   fl_all_leds_set ( wheel(value) );
-}
-
-CRGB LightController::wheel(uint8_t WheelPos) {
-  CRGB color;
-  if (85 > WheelPos) {
-   color.r = 0;
-   color.g = WheelPos * 3;
-   color.b = (255 - WheelPos * 3);
-  } 
-  else if (170 > WheelPos) {
-   color.r = WheelPos * 3;
-   color.g = (255 - WheelPos * 3);
-   color.b = 0;
-  }
-  else {
-   color.r = (255 - WheelPos * 3);
-   color.g = 0;
-   color.b = WheelPos * 3;
-  }
-  return color;
 }

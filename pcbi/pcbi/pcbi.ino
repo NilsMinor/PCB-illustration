@@ -56,13 +56,10 @@ const char* host = "PCBi panel";
 CY8C touch;
 DHT dht(DHTPIN, DHTTYPE);
 BlynkTimer timer;
-BlynkTimer ledTimer;
 LightController lc;
 RGBRemoteController ir;
-int ledTimerID;
 
 // global variables
-
 uint8_t red, green, blue;
 bool on_off = false;
 unsigned long previousTime = 0;
@@ -110,7 +107,7 @@ void lightTurnColor (void) {
 void setup() {
 
   red = green = blue = 0;
-  // put your setup code here, to run once:
+  
   Serial.begin(115200);
   Blynk.begin(auth, wlan_name, wlan_pw);
 
@@ -120,7 +117,7 @@ void setup() {
 
   // setup blynk app
   //timer.setInterval(1000L, sendTemperatureHumidity);  // Setup a function to be called every second
-  //ledTimerID = ledTimer.setInterval(effect_speed*100, runLEDMode);             // timer for led modes/effects
+  timer.setInterval(100, runLEDMode);             // timer for led modes/effects
 
   Blynk.virtualWrite(V1, (int)(lc.getBrightness() * 100));   // set default brightness
   Blynk.virtualWrite(V3, lc.getEffectMode() );             // set default mode
@@ -143,12 +140,18 @@ void setup() {
   ir.setCalbackColor ( &lightTurnColor );
   ir.setCalbackEffectUp ( &lightEffectUp );
   ir.setCalbackEffectDn ( &lightEffectDn );
+
+  lc.connectWLANIndicator ( );
 }
 
 //----------------------------------------------------------------------------------------------------
 
+void runLEDMode ( void ) {
+  lc.runLEDMode ( );
+}
+
 BLYNK_WRITE(V0) {
-  on_off = (float)param.asInt();
+  on_off = (float) param.asInt();
 }
 
 BLYNK_WRITE(V1) {
@@ -163,13 +166,11 @@ BLYNK_WRITE(V2) {
   Blynk.virtualWrite(V3, lc.getEffectMode());
 }
 BLYNK_WRITE(V3) {
-  lc.setEffectMode(param.asInt());
+  lc.setEffectMode( param.asInt() );
 }
 BLYNK_WRITE(V4) {
-  lc.setEffectSpeed( param.asInt() );
-  //ledTimer.deleteTimer(ledTimerID);
-  //ledTimer.setInterval(effect_speed*100, runLEDMode);             // timer for led modes/effects
-  Serial.println(lc.getEffectSpeed() );
+  lc.setEffectSpeed ( param.asInt() * 50 );
+  Serial.println( lc.getEffectSpeed() );
 }
 
 BLYNK_WRITE(V5) {
@@ -224,8 +225,8 @@ void loop() {
 
 
   Blynk.run();
-  lc.update ();   // update leds
-  timer.run();
+  lc.update ();         // update leds
+  timer.run();          // update timer
   ArduinoOTA.handle();  // For OTA
 }
 
