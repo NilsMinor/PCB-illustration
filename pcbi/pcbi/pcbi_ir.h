@@ -16,14 +16,7 @@
 #include "Arduino.h"
 #include "FastLED.h"    // required for callback
 
-//#include <HCSR04.h>
-//#include <movingAvg.h>
-// setup
-// HCSR04 hc(16,0);//initialisation class HCSR04 (trig pin , echo pin)
-// movingAvg avgTemp(10);
-// loop
-// float temp = hc.dist();
-// float avg = avgTemp.reading(temp);
+
 
 #define IR_PIN                  2
 #define IR_COMAND_CODES         8

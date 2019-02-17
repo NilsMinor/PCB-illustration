@@ -12,6 +12,8 @@ LightController::LightController ( ) {
   brightness = 0.8;
   effect_speed = 5;
   selected_mode = 0;
+  pinMode (LED_PWR_PIN, OUTPUT);
+  digitalWrite(LED_PWR_PIN, HIGH);
   
   // musiRGBInit ();
 }

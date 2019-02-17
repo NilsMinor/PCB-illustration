@@ -17,8 +17,8 @@ I use the following components:
 ## Software
 
 The esp8266 is entirely programmed using the Arduino IDE and uses the following third-party libraries:
-- A
-- B
+- FastLED
+- IRremoteESP8266
 - C
 
 To use the esp8266 I needed to downgrade the esp library to version XXXX

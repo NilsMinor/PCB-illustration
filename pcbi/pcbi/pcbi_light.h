@@ -8,6 +8,26 @@
 #include "FastLED.h"
 #include "FastLED_RGBW.h"
 
+
+/*  
+ *    MIC           A0    A0
+ *    HC ECHO       D0    16
+ *    I2C SCL       D1    5
+ *    I2C SDA       D2    4
+ *    HC TRIG       D3    0
+ *    IR_PIN        D4    2
+ *    LED PWR       D5    14 
+ *    LED DATA      D6    12
+ *    DHT PIN       D7    13           
+ *                  D8    15 
+ *  
+ *   HCSR04 hc(0,16);//initialisation class HCSR04 (trig pin , echo pin)
+ *                
+ *                
+ *                
+ */
+
+
 //#include "musicRGB.h"
 
 // LED strip related configs
@@ -16,6 +36,7 @@
 #define PIXEL_COUNT_FRONT       159                                   // Pixels count front 1 row   
 #define PIXEL_COUNT             (PIXEL_COUNT_FRONT+PIXEL_COUNT_BACK)  // Total pixel count
 #define BR_STEP                 (double)0.1                                   // brightness step
+#define LED_PWR_PIN             14
 
 #define MAX_MODE                6                                     // max modes
 #define MODE_MUSIC              3

@@ -9,7 +9,7 @@
 #define SAMPLING_FREQUENCY 10000 //Hz, must be 10000 or less due to ADC conversion time. Determines maximum frequency that can be analysed by the FFT.
 #define amplitude 25
 #define SLOTS   7
-#define MIC_PIN     0           //           
+#define MIC_PIN     A0           //           
 
 
 void musiRGBInit (void);
