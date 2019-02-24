@@ -35,17 +35,11 @@ void LightController::runLEDMode (void) {
    currentTime = millis();
    
    unsigned long deltaTime = currentTime - previousTime;
-   
-
-   //Serial.print("Update : ");
-   //Serial.println(getEffectSpeed());
 
    if ( deltaTime > (getEffectSpeed () * 0.9)) {
-    Serial.print ("Elapsed Time: ");
-    Serial.println(deltaTime);
-    
-   
-   
+    //Serial.print ("Elapsed Time: ");
+    //Serial.println(deltaTime);
+       
       switch (selected_mode) {
      
           case MODE_RAINBOW:  // RGB (rainbow)

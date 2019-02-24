@@ -35,7 +35,7 @@
 #define PIXEL_COUNT_BACK        (5*26)                                // Pixels count backlight 5 rows a 26 leds per strip
 #define PIXEL_COUNT_FRONT       159                                   // Pixels count front 1 row   
 #define PIXEL_COUNT             (PIXEL_COUNT_FRONT+PIXEL_COUNT_BACK)  // Total pixel count
-#define BR_STEP                 (double)0.1                           // brightness step
+#define BR_STEP                 10                                    // brightness step
 #define LED_PWR_PIN             14
 
 #define MAX_MODE                6                                     // max modes
@@ -45,39 +45,40 @@
 
 class LightController{
   public:
-    LightController ( );
-    float   getBrightness   (void);
-    void    setBrightness   (float br);
-    void    upBrightness    (void);
-    void    downBrightness  (void);
-    uint16_t getEffectSpeed  (void);
-    void    setEffectSpeed  (uint16_t es);
-    uint8_t getEffectMode   (void);
-    void    setEffectMode   (uint8_t mo);
-    void    nextEffectMode  (void);
-    void    prevEffectMode  (void);
-    void    update (void);
+              LightController ( );
+    void      setMOSFET  ( bool state ); 
+    uint8_t   getBrightness   (void);
+    void      setBrightness   (uint8_t br);
+    void      upBrightness    (void);
+    void      downBrightness  (void);
+    uint16_t  getEffectSpeed  (void);
+    void      setEffectSpeed  (uint16_t es);
+    uint8_t   getEffectMode   (void);
+    void      setEffectMode   (uint8_t mo);
+    void      nextEffectMode  (void);
+    void      prevEffectMode  (void);
+    void      update (void);
 
-    void    fl_all_leds_set (CRGB c);
-    void    fl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
-    void    fl_single_led_set (uint16_t led, CRGB c);
-    void    fl_single_led_set (uint16_t led, uint8_t r, uint8_t g, uint8_t b, uint8_t w);
+    void      fl_all_leds_set (CRGB c);
+    void      fl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
+    void      fl_single_led_set (uint16_t led, CRGB c);
+    void      fl_single_led_set (uint16_t led, uint8_t r, uint8_t g, uint8_t b, uint8_t w);
         
-    void    bl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
-    void    bl_single_led_set (uint8_t led, uint8_t r, uint8_t g, uint8_t b, uint8_t w);
+    void      bl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
+    void      bl_single_led_set (uint8_t led, uint8_t r, uint8_t g, uint8_t b, uint8_t w);
 
-    void    connectWLANIndicator (void);
-    void    all_off (void);
-    void    all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
+    void      connectWLANIndicator (void);
+    void      all_off (void);
+    void      all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w);
      
-    void    runLEDMode (void);
-    void    colorWheelMode (uint8_t value);
+    void      runLEDMode (void);
+    void      colorWheelMode (uint8_t value);
 
     // effects
-    void    rainbowCycleFront (void);
-    void    musicMode (void);
-    void    collorShiftAll (void);
-    void    Fire (int Cooling, int Sparking, int SpeedDelay);
+    void      rainbowCycleFront (void);
+    void      musicMode (void);
+    void      collorShiftAll (void);
+    void      Fire (int Cooling, int Sparking, int SpeedDelay);
 
   private:
     CRGBW leds[PIXEL_COUNT];
@@ -91,6 +92,7 @@ class LightController{
     CRGB wheel(uint8_t WheelPos);
 
     void    setPixelHeatColor (int Pixel, byte temperature);
+     
   
 };
 

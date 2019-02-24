@@ -27,7 +27,7 @@ typedef void (*Callback)(void);
 enum ir_codes_pos {
   ir_error = -1,
   ir_on = 0, 
-  ir_off, 
+  ir_off,
   ir_lup,
   ir_ldn,
   ir_flash,

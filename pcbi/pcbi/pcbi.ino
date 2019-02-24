@@ -59,6 +59,7 @@ BlynkTimer timer;
 LightController lc;
 RGBRemoteController ir;
 
+
 // global variables
 uint8_t red, green, blue;
 bool on_off = false;
@@ -70,19 +71,21 @@ void handleClap (void);
 
 void lightTurnOn (void) {
   on_off = true;
+  setMOSFET (true);
   Blynk.virtualWrite (V0, on_off);
 }
 void lightTurnOff (void) {
   on_off = false;
+  setMOSFET (false);
   Blynk.virtualWrite (V0, on_off);
 }
 void lightTurnUp (void) {
   lc.upBrightness ();
-  Blynk.virtualWrite (V1, (int)(lc.getBrightness() * 100));
+  Blynk.virtualWrite (V1, (int)(lc.getBrightness() ));
 }
 void lightTurnDn (void) {
   lc.downBrightness ();
-  Blynk.virtualWrite (V1, (int)(lc.getBrightness() * 100));
+  Blynk.virtualWrite (V1, (int)(lc.getBrightness() ));
 }
 void lightEffectUp (void) {
   lc.nextEffectMode();
@@ -155,7 +158,7 @@ BLYNK_WRITE(V0) {
 }
 
 BLYNK_WRITE(V1) {
-  lc.setBrightness( (float) param.asInt() / 100 );
+  lc.setBrightness( (float) param.asInt()  );
 }
 
 BLYNK_WRITE(V2) {
@@ -223,8 +226,7 @@ void loop() {
     lc.all_off ();
   }
 
-
-  Blynk.run();
+  Blynk.run();          // run blynk communication
   lc.update ();         // update leds
   timer.run();          // update timer
   ArduinoOTA.handle();  // For OTA

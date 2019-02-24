@@ -2,6 +2,8 @@
 
 #include "pcbi_ir.h"
 
+
+
                     //    ON        OFF      L_UP     L_DOWN     FLASH     STROBE     FADE     SMOOTH
 uint64_t ir_one [] = { 0xFFB04F, 0xFFF807, 0xFF906F, 0xFFB847 , 0xFFB24D, 0xFF00FF, 0xFF58A7, 0xFF30CF};
 
@@ -33,20 +35,20 @@ bool RGBRemoteController::checkIRRemote (void) {
     //Serial.println (code);
 
     switch (code) {
-      case ir_on:       cbOn (); break;
-      case ir_off:      cbOff (); break;
-      case ir_lup:      cbLup (); break;
-      case ir_ldn:      cbLdn (); break;
-      case ir_flash:    cbEup (); break;
-      case ir_strobe:   cbEdn (); break;
-      case ir_fade:     break;
-      case ir_smooth:   break;
-      case ir_color:    cbCol (); break;  // color must be loaded before
+      case ir_on:           cbOn (); break;
+      case ir_off:          cbOff (); break;
+      case ir_lup:          cbLup (); break;
+      case ir_ldn:          cbLdn (); break;
+      case ir_flash:        cbEup (); break;
+      case ir_strobe:       cbEdn (); break;
+      case ir_fade:         break;
+      case ir_smooth:       break;
+      case ir_color:        cbCol (); break;  // color must be loaded before
       
       default : 
-        /*Serial.print("Not implemented Code: 0x");
-        serialPrintUint64(results.value, HEX); 
-        Serial.println();*/
+        //Serial.print("Not implemented Code: 0x");
+        //serialPrintUint64(results.value, HEX); 
+        //Serial.println();
         break;
     }
 

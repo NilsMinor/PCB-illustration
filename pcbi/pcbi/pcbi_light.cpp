@@ -9,39 +9,59 @@ LightController::LightController ( ) {
   
   red = green = blue = 0;
 
-  brightness = 0.8;
+  brightness = 50;
   effect_speed = 5;
   selected_mode = 0;
 
   setEffectSpeed (1000);
-  pinMode (LED_PWR_PIN, OUTPUT);
-  digitalWrite(LED_PWR_PIN, HIGH);
   
-  // musiRGBInit ();
+  setMOSFET (true); 
+  
 }
 
-float LightController::getBrightness (void) {
-  return brightness;
-}
-void  LightController::setBrightness (float br) {
-  if (br >= 0 && br <= 1.0) {
-    brightness = br;
-    FastLED.setBrightness(brightness * 255);
-    FastLED.show();
+void    setMOSFET  ( bool state ) {
+  if ( state ) {
+    digitalWrite(LED_PWR_PIN, HIGH);
+  }
+  else {
+    digitalWrite(LED_PWR_PIN, LOW);
   }
 }
-void  LightController::upBrightness (void) {
-  if (brightness <= 1.0) {
-    brightness += BR_STEP;
-    FastLED.setBrightness(brightness * 255);
+
+uint8_t LightController::getBrightness (void) {
+  return brightness;
+}
+void  LightController::setBrightness (uint8_t br) {
+
+  
+  if (br >= 0 && br <= 100) {
+    brightness = br;
+    FastLED.setBrightness( brightness * 255 / 100.0 );
     FastLED.show();
+  }
+
+  if (brightness <= 0) {
+    setMOSFET (false); 
+    Serial.print ("MOSFET aus");
+  }
+  else {
+    setMOSFET (true); 
+    Serial.print ("MOSFET aus");
+  }
+
+  Serial.print ("brightness : ");
+  Serial.println( brightness );
+}
+void  LightController::upBrightness (void) {
+  if (brightness <  100) {
+    brightness += BR_STEP;
+    setBrightness ( brightness );
   }
 }
 void  LightController::downBrightness (void) {
-  if (brightness > BR_STEP ) {
+  if (brightness > 0 ) {
     brightness -= BR_STEP;
-    FastLED.setBrightness(brightness * 255);
-    FastLED.show();
+    setBrightness ( brightness );
   }
 }
 uint16_t LightController::getEffectSpeed (void) {
