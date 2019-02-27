@@ -71,12 +71,12 @@ void handleClap (void);
 
 void lightTurnOn (void) {
   on_off = true;
-  setMOSFET (true);
+  lc.setMOSFET (true);
   Blynk.virtualWrite (V0, on_off);
 }
 void lightTurnOff (void) {
   on_off = false;
-  setMOSFET (false);
+  lc.setMOSFET (false);
   Blynk.virtualWrite (V0, on_off);
 }
 void lightTurnUp (void) {

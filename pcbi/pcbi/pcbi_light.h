@@ -38,10 +38,11 @@
 #define BR_STEP                 10                                    // brightness step
 #define LED_PWR_PIN             14
 
-#define MAX_MODE                6                                     // max modes
+#define MAX_MODE                7                                     // max modes
 #define MODE_COLOR_SHIFT        3
 #define MODE_RAINBOW            4
 #define MODE_FIRE               5
+#define TWINKLE_SNOW            6
 
 class LightController{
   public:
@@ -79,6 +80,9 @@ class LightController{
     void      musicMode (void);
     void      collorShiftAll (void);
     void      Fire (int Cooling, int Sparking, int SpeedDelay);
+    void      TwinkleSnow (void);
+    void      addLedColor ( CRGBW crgbw, uint16_t pixel);
+    void      subLedColor ( CRGBW crgbw, uint16_t pixel);
 
   private:
     CRGBW leds[PIXEL_COUNT];

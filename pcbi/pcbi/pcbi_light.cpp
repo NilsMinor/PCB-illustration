@@ -6,25 +6,28 @@
 LightController::LightController ( ) {
   FastLED.addLeds<WS2812B, DATA_PIN, RGB>(ledsRGB, getRGBWsize(PIXEL_COUNT));
   FastLED.show();
+
+  pinMode (LED_PWR_PIN, OUTPUT);
   
   red = green = blue = 0;
 
   brightness = 50;
   effect_speed = 5;
-  selected_mode = 0;
+  selected_mode = TWINKLE_SNOW;
 
-  setEffectSpeed (1000);
+  setEffectSpeed (100);
   
   setMOSFET (true); 
-  
 }
 
-void    setMOSFET  ( bool state ) {
+void LightController::setMOSFET  ( bool state ) {
   if ( state ) {
     digitalWrite(LED_PWR_PIN, HIGH);
+    Serial.println ("MOSFET an");
   }
   else {
     digitalWrite(LED_PWR_PIN, LOW);
+    Serial.println ("MOSFET aus");
   }
 }
 
@@ -42,11 +45,9 @@ void  LightController::setBrightness (uint8_t br) {
 
   if (brightness <= 0) {
     setMOSFET (false); 
-    Serial.print ("MOSFET aus");
   }
   else {
     setMOSFET (true); 
-    Serial.print ("MOSFET aus");
   }
 
   Serial.print ("brightness : ");
@@ -90,7 +91,6 @@ void LightController::prevEffectMode  (void) {
 void LightController::fl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
   for (int i=0;i!=PIXEL_COUNT_FRONT;i++) {
     leds[i] = CRGBW(r,g,b,w);
-    
   }
   //FastLED.show();
 }
