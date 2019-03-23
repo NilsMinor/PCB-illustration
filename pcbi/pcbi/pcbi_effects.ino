@@ -39,7 +39,7 @@ void LightController::runLEDMode (void) {
    if ( deltaTime > (getEffectSpeed () * 0.9)) {
     Serial.print ("Elapsed Time: ");
     Serial.println(deltaTime);
-       
+    
       switch (selected_mode) {
      
           case MODE_RAINBOW:  // RGB (rainbow)

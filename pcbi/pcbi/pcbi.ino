@@ -192,6 +192,7 @@ void loop() {
   ir.checkIRRemote ();
 
   if (on_off) {
+    timer.run();          // update timer
     switch ( lc.getEffectMode () ) {
 
       case 0:   // Frontlight (Warm White)
@@ -210,7 +211,6 @@ void loop() {
         break;
 
       case 3: // music mode
-
         break;
 
       case 4:
@@ -228,11 +228,9 @@ void loop() {
 
   Blynk.run();          // run blynk communication
   lc.update ();         // update leds
-  timer.run();          // update timer
+  
   ArduinoOTA.handle();  // For OTA
 }
-
-// handle hand clap
 
 void handleClap (void) {
 
