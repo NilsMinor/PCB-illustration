@@ -2,8 +2,6 @@
 #include "pcbi_config.h"
 #include <BlynkSimpleEsp8266.h>
 
-
-
 /*
    Blynk connections :
 

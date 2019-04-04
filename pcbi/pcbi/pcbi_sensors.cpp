@@ -18,7 +18,7 @@ bool PCBISensors::update (void) {
    Serial.print ("Elapsed Time: ");
     Serial.println(deltaTime);
 
-   if ( deltaTime*1000 > (DHT22_INTERVALL_S) ) {
+   if ( deltaTime > DHT22_INTERVALL_S*1000 ) {
       previousTime = currentTime;
       Serial.println ("update dht22");
       return measureSensors();
