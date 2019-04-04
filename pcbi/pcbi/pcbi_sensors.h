@@ -8,20 +8,22 @@
 
 
 // DHT 22 setting
-#define DHTPIN 13               // 
+#define DHTPIN 13               // Communication Pin
 #define DHTTYPE DHT22           // DHT 22  (AM2302), AM2321
+#define DHT22_INTERVALL_S     3 // Update intervall
 
 class PCBISensors {
   public:
-    PCBISensors ( );
-    void getTemperature (void);
-    void getHumidity (void);  
+    PCBISensors ( );            // constructor
+    float getTemperature (void); // return last temperature measurement
+    float getHumidity (void);    // return last humidity measurement
+    bool update (void);         // update data, must be called in the main loop
 
   private:
     DHT *dht;
     float temperature;
     float humidity;
-    void measureSensors (void);
+    bool measureSensors (void);
 
 };
 

@@ -60,10 +60,6 @@ void LightController::runLEDMode (void) {
           
       }
 
-      if ( deltaTime > 1000) {
-        Serial.println("Update Temperature sensor");
-      }
-      
       previousTime = currentTime;
    }
   

@@ -46,16 +46,14 @@ const char* host = "PCBi panel";
 #include "Seeed_CY8C401XX.h"    // Grove touch sensor
 #include "pcbi_light.h"         // LightController class
 #include "pcbi_ir.h"            // ir remote controller
+#include "pcbi_sensors.h"       // tempertaure and humidity
 
 
-
-
-uint32_t temp_hum_timer = 0;
 CY8C touch;
-DHT dht(DHTPIN, DHTTYPE);
 BlynkTimer timer;
 LightController lc;
 RGBRemoteController ir;
+PCBISensors sensors;  
 
 
 
@@ -112,9 +110,7 @@ void setup() {
   
   Serial.begin(115200);
   Blynk.begin(auth, wlan_name, wlan_pw);
-
-  // setup hardware
-  dht.begin();
+  
   touch.init();
 
   // setup blynk app
@@ -225,6 +221,11 @@ void loop() {
     lc.all_off ();
   }
 
+  if (sensors.update ()) {
+    Blynk.virtualWrite(V10, sensors.getTemperature());
+    Blynk.virtualWrite(V11, sensors.getHumidity());
+  }
+
   Blynk.run();          // run blynk communication
   lc.update ();         // update leds
   
@@ -328,19 +329,4 @@ void handleTouch (void) {
     Serial.print("slider value is ");
     Serial.println(value);
   }
-}
-
-// update DHT22 temperature and humidity values
-void sendTemperatureHumidity(void) {
-
-  float h = dht.readHumidity();
-  float t = dht.readTemperature(); // or dht.readTemperature(true) for Fahrenheit
-
-  if (isnan(h) || isnan(t)) {
-    Serial.println("Failed to read from DHT sensor!");
-    return;
-  }
-
-  Blynk.virtualWrite(V10, t);
-  Blynk.virtualWrite(V11, h);
 }
