@@ -1,3 +1,4 @@
+
 #ifndef _PCBI_LIGHT_H_
 #define _PCBI_LIGHT_H_
 
@@ -22,9 +23,7 @@
  *                  D8    15 
  *  
  *   HCSR04 hc(0,16);//initialisation class HCSR04 (trig pin , echo pin)
- *                
- *                
- *                
+              
  */
 
 

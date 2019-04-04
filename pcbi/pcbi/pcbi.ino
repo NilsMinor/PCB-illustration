@@ -44,20 +44,19 @@
 const char* host = "PCBi panel";
 
 #include "Seeed_CY8C401XX.h"    // Grove touch sensor
-#include "DHT.h"                // DHT22 temperature and humidity sensor
 #include "pcbi_light.h"         // LightController class
 #include "pcbi_ir.h"            // ir remote controller
 
-// DHT 22 setting
-#define DHTPIN 13               // 
-#define DHTTYPE DHT22           // DHT 22  (AM2302), AM2321
 
 
+
+uint32_t temp_hum_timer = 0;
 CY8C touch;
 DHT dht(DHTPIN, DHTTYPE);
 BlynkTimer timer;
 LightController lc;
 RGBRemoteController ir;
+
 
 
 // global variables
@@ -192,7 +191,7 @@ void loop() {
   ir.checkIRRemote ();
 
   if (on_off) {
-    timer.run();          // update timer
+    timer.run();                      // update timer
     switch ( lc.getEffectMode () ) {
 
       case 0:   // Frontlight (Warm White)
