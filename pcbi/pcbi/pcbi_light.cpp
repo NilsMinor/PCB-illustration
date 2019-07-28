@@ -36,7 +36,9 @@ uint8_t LightController::getBrightness (void) {
 }
 void  LightController::setBrightness (uint8_t br) {
 
-  
+  if (br <= 0) brightness = 0;
+  if (br > 100) brightness = 100;
+
   if (br >= 0 && br <= 100) {
     brightness = br;
     FastLED.setBrightness( brightness * 255 / 100.0 );
@@ -49,6 +51,11 @@ void  LightController::setBrightness (uint8_t br) {
   else {
     setMOSFET (true); 
   }
+
+  
+  
+
+  
 
   Serial.print ("brightness : ");
   Serial.println( brightness );

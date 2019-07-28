@@ -99,12 +99,14 @@ void lightTurnColor (void) {
   red = color.red;
   green = color.green;
   blue = color.blue;
-  //lc.fl_all_leds_set(color);
+  lc.fl_all_leds_set(color);
 }
 
 void setup() {
 
-  red = green = blue = 0;
+  red = 0xff;
+  green = 0x00;
+  blue = 0x66;
   
   Serial.begin(115200);
   Blynk.begin(auth, wlan_name, wlan_pw);
@@ -320,11 +322,14 @@ void handleTouch (void) {
 
   // slider
   touch.get_touch_slider_value(&value);
+  
 
   if (value != 0) {
-    lc.setBrightness(1 - ((double) value / 100.0) );
-    Blynk.virtualWrite (V1, (int)(lc.getBrightness() * 100));
-    Serial.print("slider value is ");
-    Serial.println(value);
+     
+    lc.setBrightness(100 - value  );
+    Serial.println(lc.getBrightness());
+    Blynk.virtualWrite (V1, (int)(lc.getBrightness()));
+    //Serial.print("slider value is ");
+    //Serial.println(value);
   }
 }

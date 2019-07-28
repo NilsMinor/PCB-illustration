@@ -37,8 +37,8 @@ void LightController::runLEDMode (void) {
    unsigned long deltaTime = currentTime - previousTime;
 
    if ( deltaTime > (getEffectSpeed () * 0.9)) {
-    Serial.print ("Elapsed Time: ");
-    Serial.println(deltaTime);
+    //Serial.print ("Elapsed Time: ");
+    //Serial.println(deltaTime);
     
       switch (selected_mode) {
      

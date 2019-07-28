@@ -15,8 +15,8 @@ bool PCBISensors::update (void) {
    currentTime = millis();
    
    unsigned long deltaTime = currentTime - previousTime;
-   Serial.print ("Elapsed Time: ");
-    Serial.println(deltaTime);
+   //Serial.print ("Elapsed Time: ");
+   // Serial.println(deltaTime);
 
    if ( deltaTime > DHT22_INTERVALL_S*1000 ) {
       previousTime = currentTime;
