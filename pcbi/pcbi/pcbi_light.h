@@ -46,7 +46,7 @@
 class LightController{
   public:
               LightController ( );
-    void      setMOSFET  ( bool state ); 
+    void      setMOSFET       ( bool state ); 
     uint8_t   getBrightness   (void);
     void      setBrightness   (uint8_t br);
     void      upBrightness    (void);
@@ -57,7 +57,7 @@ class LightController{
     void      setEffectMode   (uint8_t mo);
     void      nextEffectMode  (void);
     void      prevEffectMode  (void);
-    void      update (void);
+    void      update          (void);
 
     void      fl_all_leds_set (CRGB c);
     void      fl_all_leds_set (uint8_t r, uint8_t g, uint8_t b, uint8_t w);

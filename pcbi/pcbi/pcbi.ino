@@ -140,6 +140,7 @@ void setup() {
   ir.setCalbackEffectDn ( &lightEffectDn );
 
   lc.connectWLANIndicator ( );
+  lightTurnOn();
 }
 
 //----------------------------------------------------------------------------------------------------

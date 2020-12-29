@@ -36,4 +36,7 @@ To control the setup with my smartphone I use Blynk.
 
 
 
- 
+ ## Upload software
+ The Panel has a USB Interface on the downside. Use the following settings :
+ ![Alt text](board.png?raw=true "Settings")
+
