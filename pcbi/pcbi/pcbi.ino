@@ -12,7 +12,7 @@
     V3     mode menu           0 - ?
     V4     effect speed        0 - 10
     V5     rgb channel
-
+ 
     V10    temeprature value   XX.X °C
     V11    humidity value      XX.X %
 
